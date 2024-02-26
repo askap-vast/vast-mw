@@ -16,7 +16,13 @@ or:
 `pip install git+ssh://git@github.com:askap-vast/vast-mw.git`
 if you don't want to check out the repository.
 
+---
+## Tools
+* [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
 
+
+
+---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
 ### Search for a single source, with position corrected to a given time:
 ```
@@ -66,4 +72,15 @@ VAST J1955.3+0624[* bet Aql]	Gaia DR3 4296708789290712064: 12.8 arcsec
 VAST J0743.3+2853[* sig Gem]	Gaia DR3 878467085735262720:  4.4 arcsec
 ...
 ```
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_gaia(source, t=..., radius=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  If an `obstime` is supplied as part of that object, then the Gaia coordinates are corrected (proper motion only) to that time.  Otherwise the time can be specified with `t` (`astropy.time.Time`). 
+
+The returned object is a dictionary containing pairs of Gaia ID, angular separation.
+
+
 
