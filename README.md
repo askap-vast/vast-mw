@@ -1,6 +1,18 @@
 # vast-mw
 Tools for multi-wavelength searches of VAST objects
 
+Requirements:
+* [astroquery](https://astroquery.readthedocs.io/en/latest/)
+* astropy
+* numpy
+* loguru
+
+Install via:
+```
+git clone 
+pip install .
+```
+
 ## `check_gaia`: look for matches in Gaia (currently DR3)
 ### Search for a single source, with position corrected to a given time:
 ```
