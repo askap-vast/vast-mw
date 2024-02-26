@@ -9,9 +9,13 @@ Requirements:
 
 Install via:
 ```
-git clone 
+git clone git@github.com:askap-vast/vast-mw.git
 pip install .
 ```
+or:
+`pip install git+ssh://git@github.com:askap-vast/vast-mw.git`
+if you don't want to check out the repository.
+
 
 ## `check_gaia`: look for matches in Gaia (currently DR3)
 ### Search for a single source, with position corrected to a given time:
