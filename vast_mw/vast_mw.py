@@ -1,0 +1,109 @@
+import numpy as np
+from astropy import units as u, constants as c
+from astropy.time import Time
+from astropy.coordinates import SkyCoord
+from astroquery.gaia import Gaia
+from loguru import logger as log
+import sys
+from typing import Dict
+
+logformat = "<level>{level: <8}</level>: <level>{message}</level>"
+log.add(sys.stderr, format=logformat, level="WARNING")
+
+Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
+
+
+def format_radec_decimal(coord: SkyCoord) -> str:
+    """Return coordinates as 'ddd.ddd, ddd.ddd'
+
+    Parameters
+    ----------
+    coord: SkyCoord
+
+    Returns
+    -------
+    str
+    """
+    return f"{coord.icrs.ra.to_string(decimal=True,precision=3)}d, {coord.icrs.dec.to_string(decimal=True, alwayssign=True, precision=3)}d"
+
+
+def format_radec(coord: SkyCoord) -> str:
+    """Return coordinates as 'HHhMMmSS.SSs DDdMMmSS.Ss'
+
+    Parameters
+    ----------
+    coord: SkyCoord
+
+    Returns
+    -------
+    str
+    """
+    sra = coord.icrs.ra.to_string(u.hour, decimal=False, sep="hms", precision=2)
+    sdec = coord.icrs.dec.to_string(
+        u.degree, decimal=False, sep="dms", precision=1, pad=True, alwayssign=True
+    )
+    return f"{sra}, {sdec}"
+
+
+def format_name(coord: SkyCoord, prefix: str = "VAST") -> str:
+    """Return coordinates as 'VAST JHHMM.M+DDMM'
+
+    Parameters
+    ----------
+    coord: SkyCoord
+    prefix: str, optional
+        Name for output
+
+    Returns
+    -------
+    str
+    """
+    hms = coord.ra.hms
+    return f"{prefix} J{int(hms[0]):02d}{int(hms[1]):02d}.{int(10*hms[2]/60)}{coord.dec.to_string(u.deg,alwayssign=True,sep='',fields=2,pad=True)}"
+
+
+def check_gaia(
+    source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against Gaia, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    t : Time, optional
+        Will override ``source.obstime`` is supplied, or if ``source.obstime`` is not supplied
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of Gaia identifier and angular separation
+    """
+    if t is None:
+        if source.obstime is None:
+            log.error(
+                "Must supply either SkyCoord with obstime or separate time for coordinate check"
+            )
+            return {}
+        t = source.obstime
+    q = Gaia.cone_search(coordinate=source, radius=radius)
+    r = q.get_results()
+    separations = {}
+    for i in range(len(r)):
+        gaia_source = SkyCoord(
+            r[i]["ra"] * u.deg,
+            r[i]["dec"] * u.deg,
+            pm_ra_cosdec=r[i]["pmra"] * u.mas / u.yr,
+            pm_dec=r[i]["pmdec"] * u.mas / u.yr,
+            distance=(
+                (r[i]["parallax"] * u.mas).to(u.kpc, equivalencies=u.parallax())
+                if r[i]["parallax"] > 0
+                else 1 * u.kpc
+            ),
+            obstime=Time(r[0]["ref_epoch"], format="decimalyear"),
+        )
+        separations[r[i]["DESIGNATION"]] = (
+            gaia_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
+        )
+    return separations
