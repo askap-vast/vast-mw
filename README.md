@@ -48,7 +48,7 @@ VAST J0312.0-2859[* alf For B]	Gaia DR3 5059349192679586304: 10.1 arcsec
 ```
 
 ### Search through XML files, look for a all sources
-May be slow, as searches are not vecetorized
+May be slow, as searches are not vectorized
 ```
 check_gaia -x ~/Downloads/RACS-low3_cp_summary.xml -k all          
 VAST J1554.6-2515[*   3 Sco]	Gaia DR3 6235747125966268928:  0.7 arcsec
