@@ -19,6 +19,7 @@ if you don't want to check out the repository.
 ---
 ## Tools
 * [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
+* [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 
 
@@ -81,6 +82,30 @@ results = vast_mw.check_gaia(source, t=..., radius=...)
 `source` is a `astropy.coordinates.SkyCoord`.  If an `obstime` is supplied as part of that object, then the Gaia coordinates are corrected (proper motion only) to that time.  Otherwise the time can be specified with `t` (`astropy.time.Time`). 
 
 The returned object is a dictionary containing pairs of Gaia ID, angular separation.
+
+---
+## `check_simbad`: look for matches in Simbad (currently DR3)
+### Search for a single source, with position corrected to a given time:
+```
+check_simbad -r 24.771674208211856 -d -17.947682860008488 -t 2016 -vv --radius=60                
+DEBUG   : Input time is '2016-01-01 00:00:00.000'
+INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 3 Gaia matches within 60.0 arcsec
+VAST J0139.0-1757	G 272-61B:  0.0 arcsec	https://simbad.u-strasbg.fr/simbad/sim-id?Ident=G+272-61B&submit=SIMBAD+search&NbIdent=1
+VAST J0139.0-1757	G 272-61:  1.6 arcsec	https://simbad.u-strasbg.fr/simbad/sim-id?Ident=G+272-61&submit=SIMBAD+search&NbIdent=1
+VAST J0139.0-1757	G 272-61A:  2.3 arcsec	https://simbad.u-strasbg.fr/simbad/sim-id?Ident=G+272-61A&submit=SIMBAD+search&NbIdent=1
+```
+Note that the positions in Simbad are epoch 2000.  This means you need a large search radius in cases like these (which is UV Ceti).  The query first looks for matches with the epoch 2000 position and the requested position, and only for those matches are the separations at the desired epoch (2016 in this case) computed.  (I think this is a bug in the Simbad query interface but don't have confirmation yet.)
+
+Note that the Simbad query also prints out the single-source URLs.
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_simbad(source, t=..., radius=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  If an `obstime` is supplied as part of that object, then the Gaia coordinates are corrected (proper motion only) to that time.  Otherwise the time can be specified with `t` (`astropy.time.Time`). 
+
+The returned object is a dictionary containing pairs of Simbad ID, angular separation. The URL can be further constructed by `vast_mw.simbad_url(name)`.
 
 ---
 ## check_pulsarscraper: Search for pulsars in ATNF or unpublished catalogs
