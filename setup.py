@@ -11,6 +11,7 @@ setup(
     entry_points={
         "console_scripts": [
             "check_gaia=vast_mw.scripts.check_gaia:main",
+            "check_pulsarscraper=vast_mw.scripts.check_pulsarscraper:main",
         ]
     },
     python_requires=">=3.7",

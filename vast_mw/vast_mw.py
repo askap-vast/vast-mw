@@ -6,11 +6,13 @@ from astroquery.gaia import Gaia
 from loguru import logger as log
 import sys
 from typing import Dict
+import requests
 
 logformat = "<level>{level: <8}</level>: <level>{message}</level>"
 log.add(sys.stderr, format=logformat, level="WARNING")
 
 Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
+scraper_url = "https://pulsar.cgca-hub.org/api"
 
 
 def format_radec_decimal(coord: SkyCoord) -> str:
@@ -107,3 +109,43 @@ def check_gaia(
             gaia_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
         )
     return separations
+
+
+def check_pulsarscraper(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against the Pulsar survey scraper
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of pulsar identifier and angular separation
+    """
+    response = requests.get(
+        scraper_url,
+        params={
+            "type": "search",
+            "ra": source.ra.deg,
+            "dec": source.dec.deg,
+            "radius": radius.to_value(u.deg),
+        },
+    )
+    if not response.ok:
+        log.error(
+            f"Unable to query pulsarsurveyscraper: received code={response.status_code} ({response.reason})"
+        )
+        return {}
+    out = {}
+    for k in response.json():
+        if k.startswith("search") or k.startswith("nmatches"):
+            continue
+        out[f"{k}[{response.json()[k]['survey']['value']}]"] = (
+            response.json()[k]["distance"]["value"] * u.deg
+        )
+    return out
