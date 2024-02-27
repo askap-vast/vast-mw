@@ -19,7 +19,7 @@ if you don't want to check out the repository.
 ---
 ## Tools
 * [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
-
+* [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 
 
 ---
@@ -53,7 +53,7 @@ VAST J0312.0-2859[* alf For B]	Gaia DR3 5059348952161258624:  6.0 arcsec
 VAST J0312.0-2859[* alf For B]	Gaia DR3 5059349192679586304: 10.1 arcsec
 ```
 
-### Search through XML files, look for a all sources
+### Search through XML files, look for all sources
 May be slow, as searches are not vectorized
 ```
 check_gaia -x ~/Downloads/RACS-low3_cp_summary.xml -k all          
@@ -82,5 +82,21 @@ results = vast_mw.check_gaia(source, t=..., radius=...)
 
 The returned object is a dictionary containing pairs of Gaia ID, angular separation.
 
+---
+## check_pulsarscraper: Search for pulsars in ATNF or unpublished catalogs
 
+### Search through XML files, look for a specific source
+```
+check_pulsarscraper -x ~/Downloads/RACS-low3_cp_summary.xml -k "PSR B0301+19"
+VAST J0304.5+1933[PSR B0301+19]	B0301+19[ATNF]:  0.0 deg
+```
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_pulsarscraper(source, radius=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  
+
+The returned object is a dictionary containing pairs of Pulsar name (including survey), angular separation.
 
