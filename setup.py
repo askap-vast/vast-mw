@@ -12,6 +12,7 @@ setup(
         "console_scripts": [
             "check_gaia=vast_mw.scripts.check_gaia:main",
             "check_pulsarscraper=vast_mw.scripts.check_pulsarscraper:main",
+            "check_simbad=vast_mw.scripts.check_simbad:main",
         ]
     },
     python_requires=">=3.7",

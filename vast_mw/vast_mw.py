@@ -3,16 +3,21 @@ from astropy import units as u, constants as c
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
+from astroquery.simbad import Simbad
 from loguru import logger as log
 import sys
 from typing import Dict
 import requests
+import warnings
 
 logformat = "<level>{level: <8}</level>: <level>{message}</level>"
 log.add(sys.stderr, format=logformat, level="WARNING")
 
 Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 scraper_url = "https://pulsar.cgca-hub.org/api"
+simbad_url = "https://simbad.u-strasbg.fr/simbad/sim-id"
+cSimbad = Simbad()
+cSimbad.add_votable_fields("pmra", "pmdec")
 
 
 def format_radec_decimal(coord: SkyCoord) -> str:
@@ -149,3 +154,55 @@ def check_pulsarscraper(
             response.json()[k]["distance"]["value"] * u.deg
         )
     return out
+
+
+def check_simbad(
+    source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against Simbad, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    t : Time, optional
+        Will override ``source.obstime`` is supplied, or if ``source.obstime`` is not supplied
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of Simbad identifier and angular separation
+    """
+    if t is None:
+        if source.obstime is None:
+            log.error(
+                "Must supply either SkyCoord with obstime or separate time for coordinate check"
+            )
+            return {}
+        t = source.obstime
+    # do the query at the requested time although that doesn't seem to work
+    # but still need to update positions to get real separations
+    # r = cSimbad.query_criteria(
+    #     f"region(CIRCLE, ICRS, J{t.jyear}, {t.jyear}, {source.ra.deg} {source.dec.deg},{radius.to_value(u.arcmin)})"
+    # )
+    r = cSimbad.query_region(source, radius=radius)
+    if r is None:
+        return {}
+    separations = {}
+    for i in range(len(r)):
+        # simbad gives positions in epoch 2000
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            simbad_source = SkyCoord(
+                r[i]["RA"],
+                r[i]["DEC"],
+                unit=("hour", "deg"),
+                pm_ra_cosdec=r[i]["PMRA"] * u.mas / u.yr,
+                pm_dec=r[i]["PMDEC"] * u.mas / u.yr,
+                obstime=Time(2000, format="decimalyear"),
+            )
+            separations[r[i]["MAIN_ID"]] = (
+                simbad_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
+            )
+    return separations

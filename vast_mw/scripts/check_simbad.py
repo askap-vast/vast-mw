@@ -7,13 +7,14 @@ import argparse
 from loguru import logger as log
 import sys
 import warnings
+import urllib
 
 from vast_mw import vast_mw
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Query Gaia for a number of positions (initial query is for 2016 positions, but final separations are corrected to a different date)",
+        description="Query Simbad for a number of positions (initial query is for 2000 positions, but final separations are corrected to a different date)",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -104,13 +105,14 @@ def main():
         sources = [source]
         names = [None]
     for name, source in zip(names, sources):
-        results = vast_mw.check_gaia(source, radius=args.radius * u.arcsec)
+        results = vast_mw.check_simbad(source, radius=args.radius * u.arcsec)
         level = log.info if len(results) > 0 else log.warning
         level(
             f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Gaia matches within {args.radius} arcsec"
         )
         for k, v in sorted(results.items(), key=lambda x: x[1]):
+            url = f"{vast_mw.simbad_url}?{urllib.parse.urlencode({'Ident': k, 'submit': 'SIMBAD search','NbIdent': 1})}"
             s = vast_mw.format_name(source)
             if name is not None:
                 s += f"[{name}]"
-            print(f"{s}\t{k}: {v:4.1f}")
+            print(f"{s}\t{k}: {v:4.1f}\t{url}")
