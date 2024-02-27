@@ -8,14 +8,15 @@ from loguru import logger as log
 import sys
 from typing import Dict
 import requests
+import urllib
 import warnings
 
 logformat = "<level>{level: <8}</level>: <level>{message}</level>"
 log.add(sys.stderr, format=logformat, level="WARNING")
 
 Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
-scraper_url = "https://pulsar.cgca-hub.org/api"
-simbad_url = "https://simbad.u-strasbg.fr/simbad/sim-id"
+_scraper_url = "https://pulsar.cgca-hub.org/api"
+_simbad_url = "https://simbad.u-strasbg.fr/simbad/sim-id"
 cSimbad = Simbad()
 cSimbad.add_votable_fields("pmra", "pmdec")
 
@@ -133,7 +134,7 @@ def check_pulsarscraper(
         Pairs of pulsar identifier and angular separation
     """
     response = requests.get(
-        scraper_url,
+        _scraper_url,
         params={
             "type": "search",
             "ra": source.ra.deg,
@@ -154,6 +155,21 @@ def check_pulsarscraper(
             response.json()[k]["distance"]["value"] * u.deg
         )
     return out
+
+
+def simbad_url(name: str) -> str:
+    """Return the single-source Simbad URL for an object
+
+    Parameters
+    ----------
+    name : str
+
+    Returns
+    -------
+    str
+
+    """
+    return f"{_simbad_url}?{urllib.parse.urlencode({'Ident': name, 'submit': 'SIMBAD search','NbIdent': 1})}"
 
 
 def check_simbad(
