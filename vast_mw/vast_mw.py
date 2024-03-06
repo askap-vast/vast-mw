@@ -22,6 +22,13 @@ cSimbad = Simbad()
 cSimbad.add_votable_fields("pmra", "pmdec")
 
 
+services = {
+    "Gaia": ["check_gaia", "gaia_url"],
+    "Simbad": ["check_simbad", "simbad_url"],
+    "Pulsar Survey Scraper": ["check_pulsarscraper", None],
+}
+
+
 def format_radec_decimal(coord: SkyCoord) -> str:
     """Return coordinates as 'ddd.ddd, ddd.ddd'
 
@@ -170,6 +177,8 @@ def gaia_url(name: str) -> str:
     str
 
     """
+    if " " in name:
+        name = name.split()[-1]
     return f"{_gaia_url}#{urllib.parse.urlencode({'gaiadr3_id': name})}"
 
 
@@ -218,7 +227,9 @@ def check_simbad(
     # r = cSimbad.query_criteria(
     #     f"region(CIRCLE, ICRS, J{t.jyear}, {t.jyear}, {source.ra.deg} {source.dec.deg},{radius.to_value(u.arcmin)})"
     # )
-    r = cSimbad.query_region(source, radius=radius)
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore")
+        r = cSimbad.query_region(source, radius=radius)
     if r is None:
         return {}
     separations = {}

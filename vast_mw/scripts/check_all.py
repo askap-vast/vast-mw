@@ -13,7 +13,7 @@ from vast_mw import vast_mw
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Query Gaia for a number of positions (initial query is for 2016 positions, but final separations are corrected to a different date)",
+        description="Query all services for a number of positions",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -105,16 +105,18 @@ def main():
         sources = [source]
         names = [None]
     for name, source in zip(names, sources):
-        results = vast_mw.check_gaia(source, radius=args.radius * u.arcsec)
-        level = log.info if len(results) > 0 else log.warning
-        level(
-            f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Gaia matches within {args.radius} arcsec"
-        )
-        for k, v in sorted(results.items(), key=lambda x: x[1]):
-            s = vast_mw.format_name(source)
-            if name is not None:
-                s += f"[{name}]"
-            out = f"{s}\t{k}: {v:4.1f}"
-            if args.url:
-                out += f"\t{vast_mw.gaia_url(k)}"
-            print(out)
+        for service in vast_mw.services:
+            function_to_call = getattr(vast_mw, vast_mw.services[service][0])
+            results = function_to_call(source, radius=args.radius * u.arcsec)
+            level = log.info if len(results) > 0 else log.warning
+            level(
+                f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} {service} matches within {args.radius} arcsec"
+            )
+            for k, v in sorted(results.items(), key=lambda x: x[1]):
+                s = vast_mw.format_name(source)
+                if name is not None:
+                    s += f"[{name}]"
+                out = f"{s}\t{k}: {v:4.1f}"
+                if vast_mw.services[service][1] is not None and args.url:
+                    out += f"\t{getattr(vast_mw, vast_mw.services[service][1])(k)}"
+                print(out)
