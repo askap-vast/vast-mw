@@ -50,6 +50,7 @@ def main():
     parser.add_argument(
         "--radius", default=15, type=float, help="Search radius (arcsec)"
     )
+    parser.add_argument("-u", "--url", action="store_true", help="Return URL")
     parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
@@ -108,10 +109,13 @@ def main():
         results = vast_mw.check_simbad(source, radius=args.radius * u.arcsec)
         level = log.info if len(results) > 0 else log.warning
         level(
-            f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Gaia matches within {args.radius} arcsec"
+            f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Simbad matches within {args.radius} arcsec"
         )
         for k, v in sorted(results.items(), key=lambda x: x[1]):
             s = vast_mw.format_name(source)
             if name is not None:
                 s += f"[{name}]"
-            print(f"{s}\t{k}: {v:4.1f}\t{vast_mw.simbad_url(k)}")
+            out = f"{s}\t{k}: {v:4.1f}"
+            if args.url:
+                out += f"\t{vast_mw.simbad_url(k)}"
+            print(out)

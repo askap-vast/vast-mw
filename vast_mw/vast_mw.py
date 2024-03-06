@@ -17,6 +17,7 @@ log.add(sys.stderr, format=logformat, level="WARNING")
 Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 _scraper_url = "https://pulsar.cgca-hub.org/api"
 _simbad_url = "https://simbad.u-strasbg.fr/simbad/sim-id"
+_gaia_url = "https://gaia.ari.uni-heidelberg.de/singlesource.html"
 cSimbad = Simbad()
 cSimbad.add_votable_fields("pmra", "pmdec")
 
@@ -155,6 +156,21 @@ def check_pulsarscraper(
             response.json()[k]["distance"]["value"] * u.deg
         )
     return out
+
+
+def gaia_url(name: str) -> str:
+    """Return the single-source Gaia URL for an object
+
+    Parameters
+    ----------
+    name : str
+
+    Returns
+    -------
+    str
+
+    """
+    return f"{_gaia_url}#{urllib.parse.urlencode({'gaiadr3_id': name})}"
 
 
 def simbad_url(name: str) -> str:
