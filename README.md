@@ -21,7 +21,7 @@ if you don't want to check out the repository.
 * [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
 * [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
-
+* [check_all]: query all available services
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
