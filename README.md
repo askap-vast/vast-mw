@@ -3,6 +3,7 @@ Tools for multi-wavelength searches of VAST objects
 
 Requirements:
 * [astroquery](https://astroquery.readthedocs.io/en/latest/)
+* [psrqpy](https://psrqpy.readthedocs.io/en/latest/#)
 * astropy
 * numpy
 * loguru
@@ -21,6 +22,7 @@ if you don't want to check out the repository.
 * [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
 * [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
+* [check_atnf]
 * [check_all]: query all available services
 
 ---
@@ -124,4 +126,22 @@ results = vast_mw.check_pulsarscraper(source, radius=...)
 `source` is a `astropy.coordinates.SkyCoord`.  
 
 The returned object is a dictionary containing pairs of Pulsar name (including survey), angular separation.
+
+---
+## check_atnf: Search for pulsars in ATNF catalog
+
+### Search through XML files, look for a specific source
+```
+check_atnf -x ~/Downloads/RACS-low3_cp_summary.xml -k "PSR B0301+19"
+VAST J0304.5+1933[PSR B0301+19]	J0304+1932:  4.5 arcsec
+```
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_atnf(source, radius=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  
+
+The returned object is a dictionary containing pairs of Pulsar name, angular separation.
 
