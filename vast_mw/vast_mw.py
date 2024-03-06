@@ -4,6 +4,7 @@ from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 from astroquery.simbad import Simbad
+import psrqpy
 from loguru import logger as log
 import sys
 from typing import Dict
@@ -26,6 +27,7 @@ services = {
     "Gaia": ["check_gaia", "gaia_url"],
     "Simbad": ["check_simbad", "simbad_url"],
     "Pulsar Survey Scraper": ["check_pulsarscraper", None],
+    "ATNF Pulsar Catalog": ["check_atnf", None],
 }
 
 
@@ -247,5 +249,64 @@ def check_simbad(
             )
             separations[r[i]["MAIN_ID"]] = (
                 simbad_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
+            )
+    return separations
+
+
+def check_atnf(
+    source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against ATNF pulsar catalog, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    t : Time, optional
+        Will override ``source.obstime`` is supplied, or if ``source.obstime`` is not supplied
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of Pulsar identifier and angular separation
+    """
+    if t is None:
+        if source.obstime is None:
+            log.error(
+                "Must supply either SkyCoord with obstime or separate time for coordinate check"
+            )
+            return {}
+        t = source.obstime
+    r = psrqpy.QueryATNF(
+        params=["JNAME", "RAJD", "DECJD", "POSEPOCH", "PMRA", "PMDEC"],
+        circular_boundary=[
+            source.ra.to_string(u.hour, decimal=False, sep="hms", precision=2),
+            source.dec.to_string(
+                u.degree,
+                decimal=False,
+                sep="dms",
+                precision=1,
+                pad=True,
+                alwayssign=True,
+            ),
+            radius.to_value(u.deg),
+        ],
+    )
+    if r is None or len(r) == 0:
+        return {}
+    separations = {}
+    for i in range(len(r)):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore")
+            atnf_source = SkyCoord(
+                r.table[i]["RAJD"] * u.deg,
+                r.table[i]["DECJD"] * u.deg,
+                pm_ra_cosdec=r.table[i]["PMRA"] * u.mas / u.yr,
+                pm_dec=r.table[i]["PMDEC"] * u.mas / u.yr,
+                obstime=Time(r.table[i]["POSEPOCH"], format="mjd"),
+            )
+            separations[r.table[i]["JNAME"]] = (
+                atnf_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
             )
     return separations

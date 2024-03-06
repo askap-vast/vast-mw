@@ -13,11 +13,12 @@ setup(
             "check_gaia=vast_mw.scripts.check_gaia:main",
             "check_pulsarscraper=vast_mw.scripts.check_pulsarscraper:main",
             "check_simbad=vast_mw.scripts.check_simbad:main",
+            "check_atnf=vast_mw.scripts.check_atnf:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },
     python_requires=">=3.7",
-    install_requires=["astropy", "astroquery", "loguru", "numpy"],
+    install_requires=["astropy", "astroquery", "loguru", "numpy", "psrqpy"],
     package_data={},
     include_package_data=False,
     zip_safe=False,
