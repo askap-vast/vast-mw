@@ -24,6 +24,7 @@ if you don't want to check out the repository.
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
 * [check_all](#check_all-check-against-all-available-services): query all available services
+* [check_casda]: check for ASKAP observations
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
@@ -165,3 +166,32 @@ WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found
 WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 ATNF Pulsar Catalog matches within 60.0 arcsec
 ```
 
+---
+## `check_casda`: Check for ASKAP observations
+
+Note that this interface is different from the others, and is not included in `check_all`
+
+### Find ASKAP observations covering a source and after a particular time
+``
+check_casda -c "12:34:56,+39:00:00" --tstart=60000                            
+   obs_id         t_min                 start          t_exptime     Frequency              obs_collection         
+                    d                                      s            MHz                                        
+----------- ------------------ ----------------------- --------- ----------------- --------------------------------
+ASKAP-55588      60298.9521875 2023-12-20 22:51:09.000   905.748 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55589  60298.96336226852 2023-12-20 23:07:14.500   905.748 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55590  60298.97453587963 2023-12-20 23:23:19.900   895.795 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55591 60298.985594907404 2023-12-20 23:39:15.400   905.748 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55665  60299.95082175926 2023-12-21 22:49:11.000   895.795 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55666 60299.961880787036 2023-12-21 23:05:06.500   905.748 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55667  60299.97305555556 2023-12-21 23:21:12.000   895.795 943.4909994999999 The Rapid ASKAP Continuum Survey
+ASKAP-55668  60299.98434490741 2023-12-21 23:37:27.400   905.748 943.4909994999999 The Rapid ASKAP Continuum Survey
+```
+
+### API
+```
+from vast_mw import vast_mw
+result = vast_mw.check_casda(source,allcolumns=True)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  
+
+The returned object is a `astropy.table.Table`.
