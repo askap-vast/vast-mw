@@ -23,7 +23,7 @@ if you don't want to check out the repository.
 * [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog)
-* [check_all]: query all available services
+* [check_all](#check_all-check-against-all-available-services): query all available services
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
