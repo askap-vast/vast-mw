@@ -1,9 +1,11 @@
 import numpy as np
 from astropy import units as u, constants as c
+from astropy.table import Table, Column
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 from astroquery.simbad import Simbad
+from astroquery.casda import Casda
 import psrqpy
 from loguru import logger as log
 import sys
@@ -310,3 +312,67 @@ def check_atnf(
                 atnf_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
             )
     return separations
+
+
+def check_casda(
+    source: SkyCoord,
+    radius: u.Quantity = 15 * u.arcsec,
+    tstart: Time = None,
+    tstop: Time = None,
+    vastonly: bool = False,
+    allcolumns: bool = False,
+) -> Table:
+    """Check a source against ATNF pulsar catalog, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+    tstart : Time, optional
+        Will only return observations >= this time if supplied
+    tstop : Time, optional
+        Will only return observations <= this time if supplied
+    vastonly : bool, optional
+        Will only return VAST observations if True
+    allcolumns : bool, optional
+        Will only return a subset of columns unless this is True
+
+    Returns
+    -------
+    Table
+        Table of matching observations
+    """
+    result = Casda.query_region(source, radius=radius)
+    # try to filter to get only a single Stokes I entry per observation
+    filter = (
+        (result["dataproduct_type"] == "cube")
+        & (result["pol_states"] == "/I/")
+        & (result["facility_name"] == "ASKAP")
+        & (result["dataproduct_subtype"] == "cont.restored.t0")
+        & (
+            (np.array(["conv" in x["filename"] for x in result]))
+            | (np.array(["restored.fcor" in x["filename"] for x in result]))
+        )
+    )
+    if vastonly:
+        filter = filter & (result["obs_collection"] == "VAST")
+    filtered_result = result[filter]
+    freq = (result[filter]["em_max"].data.data * u.m).to(
+        u.MHz, equivalencies=u.spectral()
+    )
+    filtered_result.add_column(Column(freq, name="Frequency"))
+    filtered_result.add_column(
+        Column(Time(filtered_result["t_min"], format="mjd").iso, name="start")
+    )
+    filtered_result.sort("t_min")
+    if (tstart is not None) and (len(filtered_result) > 0):
+        filtered_result = filtered_result[filtered_result["start"] >= tstart]
+    if (tstop is not None) and (len(filtered_result) > 0):
+        filtered_result = filtered_result[filtered_result["start"] <= tstop]
+    if allcolumns:
+        return filtered_result
+    else:
+        return filtered_result[
+            "obs_id", "t_min", "start", "t_exptime", "Frequency", "obs_collection"
+        ]

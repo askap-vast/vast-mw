@@ -14,6 +14,7 @@ setup(
             "check_pulsarscraper=vast_mw.scripts.check_pulsarscraper:main",
             "check_simbad=vast_mw.scripts.check_simbad:main",
             "check_atnf=vast_mw.scripts.check_atnf:main",
+            "check_casda=vast_mw.scripts.check_casda:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },
