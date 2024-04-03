@@ -110,7 +110,7 @@ results = vast_mw.check_simbad(source, t=..., radius=...)
 The returned object is a dictionary containing pairs of Simbad ID, angular separation. The URL can be further constructed by `vast_mw.simbad_url(name)`.
 
 ---
-## check_pulsarscraper: Search for pulsars in ATNF or unpublished catalogs
+## `check_pulsarscraper`: Search for pulsars in ATNF or unpublished catalogs
 
 ### Search through XML files, look for a specific source
 ```
@@ -128,7 +128,7 @@ results = vast_mw.check_pulsarscraper(source, radius=...)
 The returned object is a dictionary containing pairs of Pulsar name (including survey), angular separation.
 
 ---
-## check_atnf: Search for pulsars in ATNF catalog
+## `check_atnf`: Search for pulsars in ATNF catalog
 
 ### Search through XML files, look for a specific source
 ```
@@ -144,4 +144,24 @@ results = vast_mw.check_atnf(source, radius=...)
 `source` is a `astropy.coordinates.SkyCoord`.  
 
 The returned object is a dictionary containing pairs of Pulsar name, angular separation.
+
+---
+## `check_all`: Check against all available services
+
+### Search for a specific source against all services
+```
+check_all -r 24.771674208211856 -d -17.947682860008488 -t 2016 -vv --radius=60
+DEBUG   : Input time is '2016-01-01 00:00:00.000'
+INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 4 Gaia matches within 60.0 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158946048:  0.0 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158739712:  0.5 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158739840:  2.3 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693773021476224: 33.1 arcsec
+INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 3 Simbad matches within 60.0 arcsec
+VAST J0139.0-1757	G 272-61B:  0.0 arcsec
+VAST J0139.0-1757	G 272-61:  1.6 arcsec
+VAST J0139.0-1757	G 272-61A:  2.3 arcsec
+WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 Pulsar Survey Scraper matches within 60.0 arcsec
+WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 ATNF Pulsar Catalog matches within 60.0 arcsec
+```
 
