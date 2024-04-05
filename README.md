@@ -172,7 +172,7 @@ WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found
 Note that this interface is different from the others, and is not included in `check_all`
 
 ### Find ASKAP observations covering a source and after a particular time
-``
+```
 check_casda -c "12:34:56,+39:00:00" --tstart=60000                            
    obs_id         t_min                 start          t_exptime     Frequency              obs_collection         
                     d                                      s            MHz                                        
