@@ -24,7 +24,7 @@ if you don't want to check out the repository.
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
 * [check_all](#check_all-check-against-all-available-services): query all available services
-* [check_casda]: check for ASKAP observations
+* [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
