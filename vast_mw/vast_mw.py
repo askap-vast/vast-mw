@@ -6,6 +6,7 @@ from astropy.coordinates import SkyCoord
 from astroquery.gaia import Gaia
 from astroquery.simbad import Simbad
 from astroquery.casda import Casda
+import pyvo as vo
 import psrqpy
 from loguru import logger as log
 import sys
@@ -375,4 +376,125 @@ def check_casda(
     else:
         return filtered_result[
             "obs_id", "t_min", "start", "t_exptime", "Frequency", "obs_collection"
+        ]
+
+
+def check_vla(
+    source: SkyCoord,
+    radius: u.Quantity = None,
+    tstart: Time = None,
+    tstop: Time = None,
+    allcolumns: bool = False,
+    group: bool = False,
+) -> Table:
+    """Check a source against ATNF pulsar catalog, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search.  If None, will attempt to check against actual FOV.
+    tstart : Time, optional
+        Will only return observations >= this time if supplied
+    tstop : Time, optional
+        Will only return observations <= this time if supplied
+    allcolumns : bool, optional
+        Will only return a subset of columns unless this is True
+    group : bool, optional
+        Group together individual scans within a block
+
+    Returns
+    -------
+    Table
+        Table of matching observations
+    """
+    checkfov = False
+    if radius is None:
+        checkfov = True
+        # use a pretty large radius to start
+        radius = 1.5 * (0.2 * u.m / (25 * u.m)).to(
+            u.degree, equivalencies=u.dimensionless_angles()
+        )
+    service = vo.dal.TAPService("https://data-query.nrao.edu/tap")
+    query = (
+        "SELECT * FROM tap_schema.obscore WHERE CONTAINS(POINT('ICRS',s_ra,s_dec),CIRCLE('ICRS',"
+        + str(source.ra.degree)
+        + ","
+        + str(source.dec.degree)
+        + ","
+        + str(radius.value)
+        + "))=1 and (instrument_name='EVLA' OR instrument_name='VLA')"
+    )
+    result = service.search(query)
+    output = result.to_table()
+    wl = ((output["freq_max"] + output["freq_min"]) / 2 * u.Hz).to(
+        u.m, equivalencies=u.spectral()
+    )
+    # compare to https://science.nrao.edu/facilities/vla/docs/manuals/oss/performance/fov
+    hpbw = 1.2 * (wl / (25 * u.m)).to(u.arcmin, equivalencies=u.dimensionless_angles())
+    obs_coords = SkyCoord(ra=output["s_ra"] * u.degree, dec=output["s_dec"] * u.degree)
+    output.add_column(
+        Column(source.separation(obs_coords).to(u.arcmin), name="Separation")
+    )
+    good = np.ones(len(output), dtype=bool)
+    if checkfov:
+        good = good & (source.separation(obs_coords) < hpbw / 2)
+    if tstart is not None:
+        good = good & (Time(output["t_min"], format="mjd") >= tstart)
+    if tstop is not None:
+        good = good & (Time(output["t_max"], format="mjd") <= tstop)
+    if np.any(~good):
+        output = output[good]
+    output.sort("t_min")
+    if group:
+        unique_obs = set(
+            [(x[0], x[1]) for x in output["obs_publisher_did", "target_name"]]
+        )
+        freq_max = np.zeros(len(unique_obs))
+        t_min = np.zeros(len(unique_obs))
+        t_max = np.zeros(len(unique_obs))
+        t_exptime = np.zeros(len(unique_obs))
+        separation = np.zeros(len(unique_obs)) * u.arcmin
+        configuration = []
+        obs_publisher_did = []
+        target_name = []
+        for i, obs in enumerate(unique_obs):
+            obs_publisher_did.append(obs[0])
+            target_name.append(obs[1])
+            match = np.where(
+                (output["obs_publisher_did"] == obs[0])
+                & (output["target_name"] == obs[1])
+            )[0]
+            freq_max[i] = output[match]["freq_max"].max()
+            t_min[i] = output[match]["t_min"].min()
+            t_max[i] = output[match]["t_max"].max()
+            t_exptime[i] = output[match]["t_exptime"].sum()
+            separation[i] = output[match]["Separation"].quantity.min()
+            configuration.append(set(output[match]["configuration"]))
+        grouped_output = Table(
+            [
+                Column(obs_publisher_did, name="obs_publisher_did"),
+                Column(target_name, name="target_name"),
+                Column(separation, name="Separation"),
+                Column(t_min, name="t_min"),
+                Column(t_max, name="t_max"),
+                Column(t_exptime, name="t_exptime"),
+                Column(freq_max, name="freq_max"),
+                Column(configuration, name="configuration"),
+            ]
+        )
+        grouped_output.sort("t_min")
+        return grouped_output
+    if allcolumns:
+        return output
+    else:
+        return output[
+            "obs_publisher_did",
+            "target_name",
+            "Separation",
+            "t_min",
+            "t_max",
+            "t_exptime",
+            "freq_max",
+            "configuration",
         ]
