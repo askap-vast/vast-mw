@@ -25,6 +25,7 @@ if you don't want to check out the repository.
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
 * [check_all](#check_all-check-against-all-available-services): query all available services
 * [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
+* [check_vla](#check_vla-check-for-vla-or-evla-observations): check for VLA/EVLA observations
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
@@ -191,6 +192,33 @@ ASKAP-55668  60299.98434490741 2023-12-21 23:37:27.400   905.748 943.49099949999
 ```
 from vast_mw import vast_mw
 result = vast_mw.check_casda(source,allcolumns=True)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  
+
+The returned object is a `astropy.table.Table`.
+
+---
+## `check_vla`: Check for VLA or EVLA observations
+
+Note that this interface is different from the others, and is not included in `check_all`
+
+### Find VLA/EVLA observations covering a source and after a particular time
+```
+check_vla -r 18:32:48.41 --dec="-09:11:15.8" -v --group --tstart=59000 
+INFO    : For source at '18h32m48.41s, -09d11m15.8s' = '278.202d, -9.188d', found 3 VLA/EVLA matches within None arcsec
+               obs_publisher_did                  target_name       Separation           t_min              t_max        t_exptime   freq_max   configuration
+                                                                      arcmin                                                                                 
+------------------------------------------------ -------------- ------------------ ------------------ ------------------ --------- ------------ -------------
+ 20A-087.sb38658939.eb38659647.59112.17612017361    G22.90+0.00  16.36948764293314  59112.17612847222 59112.266087951386      44.9  464000000.0         {'B'}
+ 20A-087.sb37821358.eb38688477.59125.91483408565    G22.90+0.00  16.36948764293314 59125.914842592596  59126.00370717593     44.85  464000000.0         {'B'}
+21A-285.sb39768958.eb39990570.59405.256784178244 HESS_J1832-093 10.675953504240203 59405.256791087966  59405.31905960648     839.7 1968000000.0         {'C'}
+```
+These are additionally grouped by scheduling block.
+
+### API
+```
+from vast_mw import vast_mw
+result = vast_mw.check_vla(source,allcolumns=True)
 ```
 `source` is a `astropy.coordinates.SkyCoord`.  
 
