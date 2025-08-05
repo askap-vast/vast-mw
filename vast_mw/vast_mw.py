@@ -323,7 +323,7 @@ def check_casda(
     vastonly: bool = False,
     allcolumns: bool = False,
 ) -> Table:
-    """Check a source against ATNF pulsar catalog, correcting for proper motion
+    """Check a source against public ASKAP observations on CASDA
 
     Parameters
     ----------
