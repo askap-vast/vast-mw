@@ -26,6 +26,7 @@ if you don't want to check out the repository.
 * [check_all](#check_all-check-against-all-available-services): query all available services
 * [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
 * [check_vla](#check_vla-check-for-vla-or-evla-observations): check for VLA/EVLA observations
+* [check_planets](#check_planets-check-for-solar-system-planets): check for solar system planets
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
@@ -148,6 +149,28 @@ results = vast_mw.check_atnf(source, radius=...)
 The returned object is a dictionary containing pairs of Pulsar name, angular separation.
 
 ---
+
+## `check_planets`: look for solar system planets
+### Search for all solar system planets, with positions corrected to a given time:
+```
+check_planets -c "347.498197, -7.741003" -t "2024-09-10 15:24:05"  -r 60 -vv
+DEBUG   : Input time is '2024-09-10 15:24:05.000'
+INFO    : For source at '23h09m59.57s, -07d44m27.6s' = '347.498d, -7.741d', found 1 planets within 60 arcsec
+VAST J2309.9-0744	saturn: 0.01 deg
+```
+Note that you might use a larger radius here, since the planet ephemerides can be a bit uncertain.
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_planets(source, t=..., radius=..., obs=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  An `obstime` must be supplied as part of that object or as a separate argument, or with `t` (`astropy.time.Time`). `obs` is the name of an observatory.
+
+The returned object is a dictionary containing pairs of planet name, angular separation.
+
+---
+
 ## `check_all`: Check against all available services
 
 ### Search for a specific source against all services
