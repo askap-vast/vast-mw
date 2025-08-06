@@ -48,6 +48,9 @@ def main():
     parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
+    if len(sys.argv)==1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
     args = parser.parse_args()
     log.remove()

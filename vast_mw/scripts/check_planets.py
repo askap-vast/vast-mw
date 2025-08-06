@@ -13,7 +13,7 @@ from vast_mw import vast_mw
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Query Gaia for a number of positions (initial query is for 2016 positions, but final separations are corrected to a different date)",
+        description="Query planet positions",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(
@@ -46,18 +46,19 @@ def main():
     parser.add_argument(
         "-k", "--key", default="unknown", help="Source name in XML to search (or 'all')"
     )
+    parser.add_argument("-o","--obs",default="mwa",help="Observatory name")
     parser.add_argument(
-        "--radius", default=15, type=float, help="Search radius (arcsec)"
+        "--radius", default=60, type=float, help="Search radius (arcsec)"
     )
-    parser.add_argument("-u", "--url", action="store_true", help="Return URL")
     parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
+
     if len(sys.argv)==1:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
-    args = parser.parse_args()
+    args = parser.parse_args()    
     log.remove()
     log.add(sys.stderr, format=vast_mw.logformat, level="WARNING")
     if args.verbosity == 1:
@@ -78,10 +79,13 @@ def main():
         names = data["src"]
         log.debug(f"Found {len(sources)} sources in '{args.xml}'")
     else:
+        ra,dec=None,None
         if args.coord is not None:
             ra, dec = args.coord.split(",")
         elif args.ra is not None and args.dec is not None:
             ra, dec = args.ra, args.dec
+        if ra is None or dec is None:
+            raise ValueError("Must supply a XML file or source coordinate")
 
         ra_units = "hour" if any(x in ra for x in [" ", ":", "h"]) else "deg"
         dec_units = "deg"
@@ -108,16 +112,14 @@ def main():
         sources = [source]
         names = [None]
     for name, source in zip(names, sources):
-        results = vast_mw.check_gaia(source, radius=args.radius * u.arcsec)
+        results = vast_mw.check_planets(source, radius=args.radius * u.arcsec, obs=args.obs)
         level = log.info if len(results) > 0 else log.warning
         level(
-            f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Gaia matches within {args.radius} arcsec"
+            f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} planets within {args.radius} arcsec"
         )
         for k, v in sorted(results.items(), key=lambda x: x[1]):
             s = vast_mw.format_name(source)
             if name is not None:
                 s += f"[{name}]"
-            out = f"{s}\t{k}: {v:4.1f}"
-            if args.url:
-                out += f"\t{vast_mw.gaia_url(k)}"
+            out = f"{s}\t{k}: {v:4.2f}"
             print(out)

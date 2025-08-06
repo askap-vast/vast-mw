@@ -16,6 +16,7 @@ setup(
             "check_atnf=vast_mw.scripts.check_atnf:main",
             "check_casda=vast_mw.scripts.check_casda:main",
             "check_vla=vast_mw.scripts.check_vla:main",
+            "check_planets=vast_mw.scripts.check_planets:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },

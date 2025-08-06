@@ -3,6 +3,8 @@ from astropy import units as u, constants as c
 from astropy.table import Table, Column
 from astropy.time import Time
 from astropy.coordinates import SkyCoord
+from astropy.coordinates import solar_system_ephemeris, EarthLocation
+from astropy.coordinates import get_body_barycentric, get_body
 from astroquery.gaia import Gaia
 from astroquery.simbad import Simbad
 from astroquery.casda import Casda
@@ -31,6 +33,7 @@ services = {
     "Simbad": ["check_simbad", "simbad_url"],
     "Pulsar Survey Scraper": ["check_pulsarscraper", None],
     "ATNF Pulsar Catalog": ["check_atnf", None],
+    "Planets": ['check_planets', None]
 }
 
 
@@ -498,3 +501,41 @@ def check_vla(
             "freq_max",
             "configuration",
         ]
+
+
+def check_planets(
+    source: SkyCoord, t: Time = None, radius: u.Quantity = 1 * u.arcmin,obs: str="mwa",
+) -> Dict[str, u.Quantity]:
+    """Check a source against solar system planets, correcting for proper motion
+
+    Parameters
+    ----------
+    source : SkyCoord
+    t : Time, optional
+        Will override ``source.obstime`` is supplied, or if ``source.obstime`` is not supplied
+    radius : u.Quantity, optional
+        Search radius for cone search
+    obs : str, optional
+        Observatory name
+        
+    Returns
+    -------
+    dict
+        Pairs of planet name and angular separation
+    """
+    if t is None:
+        if source.obstime is None:
+            log.error(
+                "Must supply either SkyCoord with obstime or separate time for coordinate check"
+            )
+            return {}
+        t = source.obstime
+    loc = EarthLocation.of_site(obs)
+    separations = {}
+    with solar_system_ephemeris.set('builtin'):
+        for planet_name in solar_system_ephemeris.bodies:
+            planet=get_body(planet_name, t, loc)
+            if planet.separation(source)<radius:
+                separations[planet_name]=planet.separation(source)
+
+    return separations
