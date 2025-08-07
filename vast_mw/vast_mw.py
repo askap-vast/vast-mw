@@ -36,6 +36,7 @@ services = {
     "ATNF Pulsar Catalog": ["check_atnf", None],
     "Planets": ["check_planets", None],
     "TGSS": ["check_tgss", None],
+    "FIRST": ["check_first", None],
 }
 
 
@@ -567,6 +568,32 @@ def check_tgss(
     for r in result:
         names = r["TGSSADR"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"])
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_first(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against FIRST
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of FIRST identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog="VIII/92/first14")
+    out = {}
+    for r in result:
+        names = r["FIRST"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
             out[names[i]] = matchpos[i].separation(source)
     return out

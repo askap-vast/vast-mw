@@ -18,6 +18,7 @@ setup(
             "check_vla=vast_mw.scripts.check_vla:main",
             "check_planets=vast_mw.scripts.check_planets:main",
             "check_tgss=vast_mw.scripts.check_tgss:main",
+            "check_first=vast_mw.scripts.check_first:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },
