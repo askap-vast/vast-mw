@@ -37,6 +37,7 @@ services = {
     "Planets": ["check_planets", None],
     "TGSS": ["check_tgss", None],
     "FIRST": ["check_first", None],
+    "NVSS": ["check_nvss", None],
 }
 
 
@@ -593,6 +594,32 @@ def check_first(
     out = {}
     for r in result:
         names = r["FIRST"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_nvss(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against NVSS
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of NVSS identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog="VIII/65/nvss")
+    out = {}
+    for r in result:
+        names = r["NVSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
             out[names[i]] = matchpos[i].separation(source)
