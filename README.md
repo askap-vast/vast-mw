@@ -26,9 +26,9 @@ if you don't want to check out the repository.
 * [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
 * [check_vla](#check_vla-check-for-vla-or-evla-observations): check for VLA/EVLA observations
 * [check_planets](#check_planets-look-for-solar-system-planets): check for solar system planets
-* [check_tgss](#check_tgss): check for matches in TGSSADR1
-* [check_nvss](#check_nvss): check for matches in NVSS
-* [check_first](#check_first): check for matches in FIRST
+* [check_tgss](#check_tgss-check-for-matches-in-tgssadr1): check for matches in TGSSADR1
+* [check_nvss](#check_tgss-check-for-matches-in-tgssadr1): check for matches in NVSS
+* [check_first](#check_tgss-check-for-matches-in-tgssadr1): check for matches in FIRST
 * [check_all](#check_all-check-against-all-available-services): query all available services
 
 ---
