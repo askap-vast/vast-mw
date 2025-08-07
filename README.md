@@ -20,7 +20,7 @@ if you don't want to check out the repository.
 ---
 ## Tools
 * [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
-* [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
+* [check_simbad](#check_simbad-look-for-matches-in-simbad): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
 * [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
@@ -92,7 +92,7 @@ results = vast_mw.check_gaia(source, t=..., radius=...)
 The returned object is a dictionary containing pairs of Gaia ID, angular separation.
 
 ---
-## `check_simbad`: look for matches in Simbad (currently DR3)
+## `check_simbad`: look for matches in Simbad
 ### Search for a single source, with position corrected to a given time:
 ```
 check_simbad -r 24.771674208211856 -d -17.947682860008488 -t 2016 -vv --radius=60                
