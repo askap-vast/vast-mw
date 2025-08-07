@@ -19,17 +19,21 @@ if you don't want to check out the repository.
 
 ---
 ## Tools
-* [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3): check for matches in Gaia
-* [check_simbad](#check_simbad-look-for-matches-in-simbad): check for matches in Simbad
-* [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
-* [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
-* [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
-* [check_vla](#check_vla-check-for-vla-or-evla-observations): check for VLA/EVLA observations
-* [check_planets](#check_planets-look-for-solar-system-planets): check for solar system planets
-* [check_tgss](#check_tgss-check-for-matches-in-tgssadr1): check for matches in TGSSADR1
-* [check_nvss](#check_tgss-check-for-matches-in-tgssadr1): check for matches in NVSS
-* [check_first](#check_tgss-check-for-matches-in-tgssadr1): check for matches in FIRST
-* [check_all](#check_all-check-against-all-available-services): query all available services
+
+| Service | Description | Requires time | Can return URL |
+| ------- | ----------- | ------------- | ----------- | 
+| [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3) | check for matches in Gaia | Yes | Yes |
+| [check_simbad](#check_simbad-look-for-matches-in-simbad) | check for matches in Simbad | Yes | Yes |
+| [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs) | check for matches in pulsar survey scraper | No | No |
+| [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog) | check for matches in pulsar catalog | Yes | No | 
+| [check_planets](#check_planets-look-for-solar-system-planets) | check for solar system planets | Yes | No | 
+| [check_tgss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in TGSS ADR1 | No | Yes |
+| [check_nvss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in NVSS | No | Yes |
+| [check_first](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in FIRST | No | Yes |
+| [check_vla](#check_vla-check-for-vla-or-evla-observations) | check for VLA/EVLA observations | Optional | No |
+| [check_casda](#check_casda-check-for-askap-observations) | check for ASKAP observations | Optional | No |
+| [check_all](#check_all-check-against-all-available-services) | query all available services | Yes | Yes |
+
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
