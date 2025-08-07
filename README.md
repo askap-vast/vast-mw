@@ -173,7 +173,6 @@ results = vast_mw.check_planets(source, t=..., radius=..., obs=...)
 The returned object is a dictionary containing pairs of planet name, angular separation.
 
 ---
----
 
 ## `check_tgss`: check for matches in TGSSADR1
 ### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST):
@@ -197,7 +196,8 @@ results = vast_mw.check_tgss(source, radius=...)
 
 The returned object is a dictionary containing pairs of source name, angular separation.
 
---
+---
+
 ## `check_casda`: Check for ASKAP observations
 
 Note that this interface is different from the others, and is not included in `check_all`
