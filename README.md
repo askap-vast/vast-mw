@@ -113,7 +113,7 @@ VAST J0139.0-1757	G 272-61A:  2.3 arcsec	https://simbad.u-strasbg.fr/simbad/sim-
 ```
 Note that the positions in Simbad are epoch 2000.  This means you need a large search radius in cases like these (which is UV Ceti).  The query first looks for matches with the epoch 2000 position and the requested position, and only for those matches are the separations at the desired epoch (2016 in this case) computed.  (I think this is a bug in the Simbad query interface but don't have confirmation yet.)
 
-Note that the Simbad query also prints out the single-source URLs.
+Note that the Simbad query also prints out the single-source URLs if requested with `--url`.
 
 ### API
 ```python
