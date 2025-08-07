@@ -13,10 +13,11 @@ import pyvo as vo
 import psrqpy
 from loguru import logger as log
 import sys
-from typing import Dict
+from typing import Dict, List
 import requests
 import urllib
 import warnings
+import argparse
 
 logformat = "<level>{level: <8}</level>: <level>{message}</level>"
 log.add(sys.stderr, format=logformat, level="WARNING")
@@ -89,6 +90,70 @@ def format_name(coord: SkyCoord, prefix: str = "VAST") -> str:
     """
     hms = coord.ra.hms
     return f"{prefix} J{int(hms[0]):02d}{int(hms[1]):02d}.{int(10*hms[2]/60)}{coord.dec.to_string(u.deg,alwayssign=True,sep='',fields=2,pad=True)}"
+
+
+def _parse_input(
+    args: argparse.Namespace, require_time: bool = False
+) -> [List[SkyCoord], List[str]]:
+    """Parse input arguments
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+    require_time: bool, optional
+        Whether or not a time must be specified
+
+    Returns
+    -------
+    sources : list of SkyCoord objects
+    names : list of str objects (or None if not specified)
+
+    """
+    if require_time and args.time is None:
+        log.error("Must supply observation time")
+        return None, None
+    if args.xml is not None:
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=u.UnitsWarning)
+            data = Table.read(args.xml)
+        if args.key != "all":
+            data = data[data["src"] == args.key]
+        sources = SkyCoord(
+            data["ra_deg"] * u.deg, data["dec_deg"] * u.deg, obstime=data["scan_start"]
+        )
+        names = data["src"]
+        log.debug(f"Found {len(sources)} sources in '{args.xml}'")
+    else:
+        if args.coord is not None:
+            ra, dec = args.coord.split(",")
+        elif args.ra is not None and args.dec is not None:
+            ra, dec = args.ra, args.dec
+
+        ra_units = "hour" if any(x in ra for x in [" ", ":", "h"]) else "deg"
+        dec_units = "deg"
+        time_format = "iso" if "-" in args.time else "decimalyear"
+        if time_format == "decimalyear":
+            args.time = float(args.time)
+            if args.time > 50000:
+                time_format = "mjd"
+        try:
+            t = Time(args.time, format=time_format)
+        except ValueError:
+            log.error(
+                f"Cannot parse input time '{args.time}' with input format '{time_format}'"
+            )
+            return None, None
+        log.debug(f"Input time is '{t.iso}'")
+        try:
+            source = SkyCoord(ra, dec, unit=(ra_units, dec_units), obstime=t)
+        except:
+            log.error(
+                f"Cannot parse input coordinates '{ra}, {dec}' with input units '{ra_units}, {dec_units}'"
+            )
+            sys.exit(1)
+        sources = [source]
+        names = [None]
+    return sources, names
 
 
 def check_gaia(

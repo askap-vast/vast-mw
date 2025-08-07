@@ -46,7 +46,7 @@ def main():
     parser.add_argument(
         "-k", "--key", default="unknown", help="Source name in XML to search (or 'all')"
     )
-    parser.add_argument("-o","--obs",default="mwa",help="Observatory name")
+    parser.add_argument("-o", "--obs", default="mwa", help="Observatory name")
     parser.add_argument(
         "--radius", default=60, type=float, help="Search radius (arcsec)"
     )
@@ -54,11 +54,11 @@ def main():
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
 
-    if len(sys.argv)==1:
+    if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         sys.exit(1)
 
-    args = parser.parse_args()    
+    args = parser.parse_args()
     log.remove()
     log.add(sys.stderr, format=vast_mw.logformat, level="WARNING")
     if args.verbosity == 1:
@@ -67,52 +67,13 @@ def main():
     elif args.verbosity >= 2:
         log.remove()
         log.add(sys.stderr, format=vast_mw.logformat, level="DEBUG")
-    if args.xml is not None:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=u.UnitsWarning)
-            data = Table.read(args.xml)
-        if args.key != "all":
-            data = data[data["src"] == args.key]
-        sources = SkyCoord(
-            data["ra_deg"] * u.deg, data["dec_deg"] * u.deg, obstime=data["scan_start"]
-        )
-        names = data["src"]
-        log.debug(f"Found {len(sources)} sources in '{args.xml}'")
-    else:
-        ra,dec=None,None
-        if args.coord is not None:
-            ra, dec = args.coord.split(",")
-        elif args.ra is not None and args.dec is not None:
-            ra, dec = args.ra, args.dec
-        if ra is None or dec is None:
-            raise ValueError("Must supply a XML file or source coordinate")
-
-        ra_units = "hour" if any(x in ra for x in [" ", ":", "h"]) else "deg"
-        dec_units = "deg"
-        time_format = "iso" if "-" in args.time else "decimalyear"
-        if time_format == "decimalyear":
-            args.time = float(args.time)
-            if args.time > 50000:
-                time_format = "mjd"
-        try:
-            t = Time(args.time, format=time_format)
-        except ValueError:
-            log.error(
-                f"Cannot parse input time '{args.time}' with input format '{time_format}'"
-            )
-            sys.exit(1)
-        log.debug(f"Input time is '{t.iso}'")
-        try:
-            source = SkyCoord(ra, dec, unit=(ra_units, dec_units), obstime=t)
-        except:
-            log.error(
-                f"Cannot parse input coordinates '{ra}, {dec}' with input units '{ra_units}, {dec_units}'"
-            )
-            sys.exit(1)
-        sources = [source]
-        names = [None]
+    sources, names = vast_mw._parse_input(args, require_time=True)
+    if sources is None or len(sources) == 0:
+        sys.exit(1)
     for name, source in zip(names, sources):
-        results = vast_mw.check_planets(source, radius=args.radius * u.arcsec, obs=args.obs)
+        results = vast_mw.check_planets(
+            source, radius=args.radius * u.arcsec, obs=args.obs
+        )
         level = log.info if len(results) > 0 else log.warning
         level(
             f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} planets within {args.radius} arcsec"

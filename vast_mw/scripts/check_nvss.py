@@ -63,35 +63,9 @@ def main():
         log.remove()
         log.add(sys.stderr, format=vast_mw.logformat, level="DEBUG")
 
-    if args.xml is not None:
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=u.UnitsWarning)
-            data = Table.read(args.xml)
-        if args.key != "all":
-            data = data[data["src"] == args.key]
-        sources = SkyCoord(
-            data["ra_deg"] * u.deg, data["dec_deg"] * u.deg, obstime=data["scan_start"]
-        )
-        names = data["src"]
-        log.debug(f"Found {len(sources)} sources in '{args.xml}'")
-    else:
-        if args.coord is not None:
-            ra, dec = args.coord.split(",")
-        elif args.ra is not None and args.dec is not None:
-            ra, dec = args.ra, args.dec
-
-        ra_units = "hour" if any(x in ra for x in [" ", ":", "h"]) else "deg"
-        dec_units = "deg"
-
-        try:
-            source = SkyCoord(ra, dec, unit=(ra_units, dec_units))
-        except:
-            log.error(
-                f"Cannot parse input coordinates '{ra}, {dec}' with input units '{ra_units}, {dec_units}'"
-            )
-            sys.exit(1)
-        sources = [source]
-        names = [None]
+    sources, names = vast_mw._parse_input(args, require_time=True)
+    if sources is None or len(sources) == 0:
+        sys.exit(1)
     for name, source in zip(names, sources):
         results = vast_mw.check_nvss(source, radius=args.radius * u.arcsec)
         level = log.info if len(results) > 0 else log.warning
