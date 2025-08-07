@@ -173,6 +173,31 @@ results = vast_mw.check_planets(source, t=..., radius=..., obs=...)
 The returned object is a dictionary containing pairs of planet name, angular separation.
 
 ---
+---
+
+## `check_tgss`: check for matches in TGSSADR1
+### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST):
+```
+check_tgss -c "10:00:00, +00:00:00" --radius 1200 -vv --url                                                          
+INFO    : For source at '10h00m00.00s, +00d00m00.0s' = '150.000d, +0.000d', found 5 TGSSADR1 matches within 1200.0 arcsec
+VAST J1000.0+0000	J100016.5+000525:  0.1 deg	https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-source=J%2FA%2BA%2F598%2FA78%2Ftable3&TGSSADR=J100016.5%2B000525
+VAST J1000.0+0000	J100018.4+000519:  0.1 deg	https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-source=J%2FA%2BA%2F598%2FA78%2Ftable3&TGSSADR=J100018.4%2B000519
+VAST J1000.0+0000	J100030.3-000315:  0.1 deg	https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-source=J%2FA%2BA%2F598%2FA78%2Ftable3&TGSSADR=J100030.3-000315
+VAST J1000.0+0000	J095939.8+001439:  0.3 deg	https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-source=J%2FA%2BA%2F598%2FA78%2Ftable3&TGSSADR=J095939.8%2B001439
+VAST J1000.0+0000	J100025.4+001451:  0.3 deg	https://vizier.cds.unistra.fr/viz-bin/VizieR-5?-source=J%2FA%2BA%2F598%2FA78%2Ftable3&TGSSADR=J100025.4%2B001451
+```
+Specifying `--url` will give URLs that give the full source details through Vizier.
+
+### API
+```python
+from vast_mw import vast_mw
+results = vast_mw.check_tgss(source, radius=...)
+```
+`source` is a `astropy.coordinates.SkyCoord`.  
+
+The returned object is a dictionary containing pairs of source name, angular separation.
+
+--
 ## `check_casda`: Check for ASKAP observations
 
 Note that this interface is different from the others, and is not included in `check_all`
