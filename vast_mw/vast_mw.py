@@ -8,6 +8,7 @@ from astropy.coordinates import get_body_barycentric, get_body
 from astroquery.gaia import Gaia
 from astroquery.simbad import Simbad
 from astroquery.casda import Casda
+from astroquery.vizier import Vizier
 import pyvo as vo
 import psrqpy
 from loguru import logger as log
@@ -33,7 +34,8 @@ services = {
     "Simbad": ["check_simbad", "simbad_url"],
     "Pulsar Survey Scraper": ["check_pulsarscraper", None],
     "ATNF Pulsar Catalog": ["check_atnf", None],
-    "Planets": ['check_planets', None]
+    "Planets": ["check_planets", None],
+    "TGSS": ["check_tgss", None],
 }
 
 
@@ -504,7 +506,10 @@ def check_vla(
 
 
 def check_planets(
-    source: SkyCoord, t: Time = None, radius: u.Quantity = 1 * u.arcmin,obs: str="mwa",
+    source: SkyCoord,
+    t: Time = None,
+    radius: u.Quantity = 1 * u.arcmin,
+    obs: str = "mwa",
 ) -> Dict[str, u.Quantity]:
     """Check a source against solar system planets, correcting for proper motion
 
@@ -517,7 +522,7 @@ def check_planets(
         Search radius for cone search
     obs : str, optional
         Observatory name
-        
+
     Returns
     -------
     dict
@@ -532,10 +537,36 @@ def check_planets(
         t = source.obstime
     loc = EarthLocation.of_site(obs)
     separations = {}
-    with solar_system_ephemeris.set('builtin'):
+    with solar_system_ephemeris.set("builtin"):
         for planet_name in solar_system_ephemeris.bodies:
-            planet=get_body(planet_name, t, loc)
-            if planet.separation(source)<radius:
-                separations[planet_name]=planet.separation(source)
+            planet = get_body(planet_name, t, loc)
+            if planet.separation(source) < radius:
+                separations[planet_name] = planet.separation(source)
 
     return separations
+
+
+def check_tgss(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against the TGSS ADR1
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of TGSSADR1 identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog="J/A+A/598/A78")
+    out = {}
+    for r in result:
+        names = r["TGSSADR"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"])
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
