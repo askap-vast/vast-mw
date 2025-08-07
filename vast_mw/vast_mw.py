@@ -25,6 +25,7 @@ Gaia.MAIN_GAIA_TABLE = "gaiadr3.gaia_source"
 _scraper_url = "https://pulsar.cgca-hub.org/api"
 _simbad_url = "https://simbad.u-strasbg.fr/simbad/sim-id"
 _gaia_url = "https://gaia.ari.uni-heidelberg.de/singlesource.html"
+_vizier_url = "https://vizier.cds.unistra.fr/viz-bin/VizieR-5"
 cSimbad = Simbad()
 cSimbad.add_votable_fields("pmra", "pmdec")
 
@@ -36,7 +37,7 @@ services = {
     "ATNF Pulsar Catalog": ["check_atnf", None],
     "Planets": ["check_planets", None],
     "TGSS": ["check_tgss", None],
-    "FIRST": ["check_first", None],
+    "FIRST": ["check_first", "vizier_url"],
     "NVSS": ["check_nvss", None],
 }
 
@@ -207,6 +208,10 @@ def simbad_url(name: str) -> str:
 
     """
     return f"{_simbad_url}?{urllib.parse.urlencode({'Ident': name, 'submit': 'SIMBAD search','NbIdent': 1})}"
+
+
+def vizier_url(catalog: str, idname: str, sourcename: str) -> str:
+    return f"{_vizier_url}?{urllib.parse.urlencode({'-source': catalog, idname: sourcename})}"
 
 
 def check_simbad(
@@ -596,7 +601,7 @@ def check_first(
         names = r["FIRST"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[f"{names[i]}"] = matchpos[i].separation(source)
     return out
 
 

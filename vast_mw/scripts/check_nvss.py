@@ -45,6 +45,7 @@ def main():
     parser.add_argument(
         "--radius", default=15, type=float, help="Search radius (arcsec)"
     )
+    parser.add_argument("-u", "--url", action="store_true", help="Return URL")
     parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
@@ -101,4 +102,7 @@ def main():
             s = vast_mw.format_name(source)
             if name is not None:
                 s += f"[{name}]"
-            print(f"{s}\t{k}: {v:4.1f}")
+            out = f"{s}\t{k}: {v:4.1f}"
+            if args.url:
+                out += f"\t{vast_mw.vizier_url(catalog='VIII/65/nvss',idname='NVSS',sourcename=k)}"
+            print(out)
