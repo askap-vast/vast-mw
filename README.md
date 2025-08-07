@@ -23,10 +23,13 @@ if you don't want to check out the repository.
 * [check_simbad](#check_simbad-look-for-matches-in-simbad-currently-dr3): check for matches in Simbad
 * [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs): check for matches in pulsar survey scraper
 * [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog): check for matches in pulsar catalog
-* [check_all](#check_all-check-against-all-available-services): query all available services
 * [check_casda](#check_casda-check-for-askap-observations): check for ASKAP observations
 * [check_vla](#check_vla-check-for-vla-or-evla-observations): check for VLA/EVLA observations
 * [check_planets](#check_planets-look-for-solar-system-planets): check for solar system planets
+* [check_tgss](#check_planets-look-for-solar-system-planets): check for matches in TGSSADR1
+* [check_nvss](#check_planets-look-for-solar-system-planets): check for matches in NVSS
+* [check_first](#check_planets-look-for-solar-system-planets): check for matches in FIRST
+* [check_all](#check_all-check-against-all-available-services): query all available services
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
@@ -170,27 +173,6 @@ results = vast_mw.check_planets(source, t=..., radius=..., obs=...)
 The returned object is a dictionary containing pairs of planet name, angular separation.
 
 ---
-
-## `check_all`: Check against all available services
-
-### Search for a specific source against all services
-```
-check_all -r 24.771674208211856 -d -17.947682860008488 -t 2016 -vv --radius=60
-DEBUG   : Input time is '2016-01-01 00:00:00.000'
-INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 4 Gaia matches within 60.0 arcsec
-VAST J0139.0-1757	Gaia DR3 5140693571158946048:  0.0 arcsec
-VAST J0139.0-1757	Gaia DR3 5140693571158739712:  0.5 arcsec
-VAST J0139.0-1757	Gaia DR3 5140693571158739840:  2.3 arcsec
-VAST J0139.0-1757	Gaia DR3 5140693773021476224: 33.1 arcsec
-INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 3 Simbad matches within 60.0 arcsec
-VAST J0139.0-1757	G 272-61B:  0.0 arcsec
-VAST J0139.0-1757	G 272-61:  1.6 arcsec
-VAST J0139.0-1757	G 272-61A:  2.3 arcsec
-WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 Pulsar Survey Scraper matches within 60.0 arcsec
-WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 ATNF Pulsar Catalog matches within 60.0 arcsec
-```
-
----
 ## `check_casda`: Check for ASKAP observations
 
 Note that this interface is different from the others, and is not included in `check_all`
@@ -246,3 +228,24 @@ result = vast_mw.check_vla(source,allcolumns=True)
 `source` is a `astropy.coordinates.SkyCoord`.  
 
 The returned object is a `astropy.table.Table`.
+
+---
+
+## `check_all`: Check against all available services
+
+### Search for a specific source against all services
+```
+check_all -r 24.771674208211856 -d -17.947682860008488 -t 2016 -vv --radius=60
+DEBUG   : Input time is '2016-01-01 00:00:00.000'
+INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 4 Gaia matches within 60.0 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158946048:  0.0 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158739712:  0.5 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693571158739840:  2.3 arcsec
+VAST J0139.0-1757	Gaia DR3 5140693773021476224: 33.1 arcsec
+INFO    : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 3 Simbad matches within 60.0 arcsec
+VAST J0139.0-1757	G 272-61B:  0.0 arcsec
+VAST J0139.0-1757	G 272-61:  1.6 arcsec
+VAST J0139.0-1757	G 272-61A:  2.3 arcsec
+WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 Pulsar Survey Scraper matches within 60.0 arcsec
+WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 ATNF Pulsar Catalog matches within 60.0 arcsec
+```
