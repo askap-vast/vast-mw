@@ -37,9 +37,9 @@ services = {
     "Pulsar Survey Scraper": ["check_pulsarscraper", None],
     "ATNF Pulsar Catalog": ["check_atnf", None],
     "Planets": ["check_planets", None],
-    "TGSS": ["check_tgss", None],
+    "TGSS": ["check_tgss", "vizier_url"],
     "FIRST": ["check_first", "vizier_url"],
-    "NVSS": ["check_nvss", None],
+    "NVSS": ["check_nvss", "vizier_url"],
 }
 
 
@@ -124,6 +124,7 @@ def _parse_input(
         names = data["src"]
         log.debug(f"Found {len(sources)} sources in '{args.xml}'")
     else:
+        t = None
         if args.coord is not None:
             ra, dec = args.coord.split(",")
         elif args.ra is not None and args.dec is not None:
@@ -131,19 +132,20 @@ def _parse_input(
 
         ra_units = "hour" if any(x in ra for x in [" ", ":", "h"]) else "deg"
         dec_units = "deg"
-        time_format = "iso" if "-" in args.time else "decimalyear"
-        if time_format == "decimalyear":
-            args.time = float(args.time)
-            if args.time > 50000:
-                time_format = "mjd"
-        try:
-            t = Time(args.time, format=time_format)
-        except ValueError:
-            log.error(
-                f"Cannot parse input time '{args.time}' with input format '{time_format}'"
-            )
-            return None, None
-        log.debug(f"Input time is '{t.iso}'")
+        if hasattr(args, "time"):
+            time_format = "iso" if "-" in args.time else "decimalyear"
+            if time_format == "decimalyear":
+                args.time = float(args.time)
+                if args.time > 50000:
+                    time_format = "mjd"
+            try:
+                t = Time(args.time, format=time_format)
+            except ValueError:
+                log.error(
+                    f"Cannot parse input time '{args.time}' with input format '{time_format}'"
+                )
+                return None, None
+            log.debug(f"Input time is '{t.iso}'")
         try:
             source = SkyCoord(ra, dec, unit=(ra_units, dec_units), obstime=t)
         except:

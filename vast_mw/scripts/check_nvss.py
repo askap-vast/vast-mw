@@ -63,7 +63,7 @@ def main():
         log.remove()
         log.add(sys.stderr, format=vast_mw.logformat, level="DEBUG")
 
-    sources, names = vast_mw._parse_input(args, require_time=True)
+    sources, names = vast_mw._parse_input(args, require_time=False)
     if sources is None or len(sources) == 0:
         sys.exit(1)
     for name, source in zip(names, sources):
