@@ -40,6 +40,8 @@ services = {
     "TGSS": ["check_tgss", "vizier_url"],
     "FIRST": ["check_first", "vizier_url"],
     "NVSS": ["check_nvss", "vizier_url"],
+    "Million Quasar": ["check_milliquas", "vizier_url"],
+    "WISEAGN": ["check_wiseagn", "vizier_url"],
 }
 
 
@@ -692,6 +694,60 @@ def check_nvss(
     out = {}
     for r in result:
         names = r["NVSS"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_milliquas(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against Million Quasar catalog
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of Milliquas identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog="VII/294/catalog")
+    out = {}
+    for r in result:
+        names = r["Name"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_wiseagn(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against WISE AGN catalog
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of WISE AGN identifier and angular separation
+    """
+    result = Vizier().query_region(
+        source, radius=radius, catalog=["J/ApJS/234/23/c75cat"]
+    )
+    out = {}
+    for r in result:
+        names = r["WISEA"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
             out[names[i]] = matchpos[i].separation(source)

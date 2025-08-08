@@ -20,6 +20,8 @@ setup(
             "check_tgss=vast_mw.scripts.check_tgss:main",
             "check_first=vast_mw.scripts.check_first:main",
             "check_nvss=vast_mw.scripts.check_nvss:main",
+            "check_milliquas=vast_mw.scripts.check_milliquas:main",
+            "check_wiseagn=vast_mw.scripts.check_wiseagn:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },
