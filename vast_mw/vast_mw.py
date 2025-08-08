@@ -44,6 +44,7 @@ services = {
     "WISEAGN": ["check_wiseagn", "vizier_url"],
     "Large Quasar Astrometric Catalog": ["check_lqac", "vizier_url"],
     "SDSS Quasar": ["check_sdssqso", "vizier_url"],
+    "VLASS": ["check_vlass", "vizier_url"],
 }
 
 
@@ -840,6 +841,35 @@ def check_sdssqso(
     out = {}
     for r in result:
         names = r["SDSS"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_vlass(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against VLASS QL epoch 1
+    https://vizier.cds.unistra.fr/viz-bin/Cat?J/ApJS/255/30
+    https://ui.adsabs.harvard.edu/abs/2021ApJS..255...30G/abstract
+    Gordon et al. 2021, ApJS, 255, 30
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of VLASS identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog="J/ApJS/255/30/comp")
+    out = {}
+    for r in result:
+        names = r["CompName"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
             out[names[i]] = matchpos[i].separation(source)

@@ -24,6 +24,7 @@ setup(
             "check_wiseagn=vast_mw.scripts.check_wiseagn:main",
             "check_lqac=vast_mw.scripts.check_lqac:main",
             "check_sdssqso=vast_mw.scripts.check_sdssqso:main",
+            "check_vlass=vast_mw.scripts.check_vlass:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },
