@@ -39,6 +39,41 @@ if you don't want to check out the repository.
 | [check_casda](#check_casda-check-for-askap-observations) | check for ASKAP observations | Optional | No |
 | [check_all](#check_all-check-against-all-available-services) | query all available services | Yes | Yes |
 
+The services that require a time input will do proper motion corrections.  
+
+General interface:
+```
+usage: check_all [-h] [-c COORD] [-r RA] [-d DEC] [-t TIME] [-x XML] [-k KEY] [--radius RADIUS] [-u] [-v]
+
+Query all services for a number of positions.  Available services:
+        Gaia:   check_gaia
+        Simbad: check_simbad
+        Pulsar Survey Scraper:  check_pulsarscraper
+        ATNF Pulsar Catalog:    check_atnf
+        Planets:        check_planets
+        TGSS:   check_tgss
+        FIRST:  check_first
+        NVSS:   check_nvss
+        Million Quasar: check_milliquas
+        WISEAGN:        check_wiseagn
+        Large Quasar Astrometric Catalog:       check_lqac
+        SDSS Quasar:    check_sdssqso
+        VLASS:  check_vlass
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -c COORD, --coord COORD
+                        Input coordinates (separated by ,) (default: None)
+  -r RA, --ra RA        RA to search (hms or deg) - only if not specified with -c (default: None)
+  -d DEC, --dec DEC     Dec to search (deg) - only if not specified with -c (default: None)
+  -t TIME, --time TIME  Time for input coordinates (default: None)
+  -x XML, --xml XML     XML table for input (default: None)
+  -k KEY, --key KEY     Source name in XML to search (or 'all') (default: unknown)
+  --radius RADIUS       Search radius (arcsec) (default: 15)
+  -u, --url             Return URL (default: False)
+  -v, --verbosity       Increase output verbosity (default: 0)
+```
+Note `-r/--ra` vs `--radius`.
 
 ---
 ## `check_gaia`: look for matches in Gaia (currently DR3)
