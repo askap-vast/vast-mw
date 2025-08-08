@@ -291,3 +291,8 @@ VAST J0139.0-1757	G 272-61A:  2.3 arcsec
 WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 Pulsar Survey Scraper matches within 60.0 arcsec
 WARNING : For source at '1h39m05.20s, -17d56m51.7s' = '24.772d, -17.948d', found 0 ATNF Pulsar Catalog matches within 60.0 arcsec
 ```
+
+---
+### References
+
+In addition to the individual catalogs/citations above, this tool makes use of the SIMBAD database, CDS, Strasbourg Astronomical Observatory, France and of the VizieR catalogue access tool, CDS, Strasbourg Astronomical Observatory, France (DOI : [10.26093/cds/vizier](https://doi.org/10.26093/cds/vizier), [Ochsenbein et al. 2000, A&AS, 143, 230](https://ui.adsabs.harvard.edu/abs/2000A%26AS..143...23O%2F/abstract)).
