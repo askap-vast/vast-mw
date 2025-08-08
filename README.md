@@ -30,6 +30,7 @@ if you don't want to check out the repository.
 | [check_tgss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [TGSS ADR1](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/598/A78) | No | Yes | [Intema et al. 2017, A&A, 598, 78](https://ui.adsabs.harvard.edu/abs/2017A%26A...598A..78I/abstract) |    
 | [check_nvss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [NVSS](https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/65) | No | Yes | [Condon et al. 1998, AJ, 115, 1693](https://ui.adsabs.harvard.edu/abs/1998AJ....115.1693C) |   
 | [check_first](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [FIRST](https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/92) | No | Yes | [Helfand, White, and Becker 2015, ApJ, 801, 26](https://ui.adsabs.harvard.edu/abs/2015ApJ...801...26H/abstract)     |
+| [check_vlass](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [VLASS Epoch 1 QL]([https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/92](https://vizier.cds.unistra.fr/viz-bin/Cat?J/ApJS/255/30)) | No | Yes | [Gordon et al. 2021, ApJS, 255, 30](https://ui.adsabs.harvard.edu/abs/2021ApJS..255...30G/abstract)     |
 | [check_milliquas](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [Million Quasar catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/280) | No | Yes | [Flesch 2015, PASA, 32, 10](https://ui.adsabs.harvard.edu/abs/2015PASA...32...10F/abstract)     |
 | [check_wiseagn](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [WISE AGN catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/ApJS/234/23) (75% confidence version) | No | Yes | [Assef et al. 2018, ApJS, 234, 23](https://ui.adsabs.harvard.edu/abs/2018ApJS..234...23A/abstract) |
 | [check_lqac](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [Large Quasar Astrometric Catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/624/A145) | No | Yes | [Souchay et al. 2019, A&A, 624, 145](https://ui.adsabs.harvard.edu/abs/2019A%26A...624A.145S/abstract) |
@@ -192,7 +193,7 @@ The returned object is a dictionary containing pairs of planet name, angular sep
 ---
 
 ## `check_tgss`: check for matches in TGSSADR1
-### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST, Milliquas, WISE AGN, LQAC, SDSS QSO):
+### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST, VLASS, Milliquas, WISE AGN, LQAC, SDSS QSO):
 ```
 check_tgss -c "10:00:00, +00:00:00" --radius 1200 -vv --url                                                          
 INFO    : For source at '10h00m00.00s, +00d00m00.0s' = '150.000d, +0.000d', found 5 TGSSADR1 matches within 1200.0 arcsec
