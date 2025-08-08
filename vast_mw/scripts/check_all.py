@@ -13,6 +13,7 @@ import textwrap
 from vast_mw import vast_mw
 
 
+# based on https://stackoverflow.com/questions/3853722/how-to-insert-newlines-on-argparse-help-text
 class DescriptionWrappedNewlineFormatter(argparse.ArgumentDefaultsHelpFormatter):
     """An argparse formatter that:
     * preserves newlines (like argparse.RawDescriptionHelpFormatter),
