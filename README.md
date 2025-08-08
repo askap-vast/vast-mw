@@ -20,20 +20,20 @@ if you don't want to check out the repository.
 ---
 ## Tools
 
-| Service | Description | Requires time | Can return URL |
-| ------- | ----------- | ------------- | ----------- | 
-| [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3) | check for matches in Gaia | Yes | Yes |
-| [check_simbad](#check_simbad-look-for-matches-in-simbad) | check for matches in Simbad | Yes | Yes |
-| [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs) | check for matches in pulsar survey scraper | No | No |
-| [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog) | check for matches in pulsar catalog | Yes | No | 
-| [check_planets](#check_planets-look-for-solar-system-planets) | check for solar system planets | Yes | No | 
-| [check_tgss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in TGSS ADR1 | No | Yes |
-| [check_nvss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in NVSS | No | Yes |
-| [check_first](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in FIRST | No | Yes |
-| [check_milliquas](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in Million Quasar catalog | No | Yes |
-| [check_wiseagn](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in WISE AGN catalog (75% confidence version) | No | Yes |
-| [check_lqac](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in Large Quasar Astrometric Catalog | No | Yes |
-| [check_sdssqso](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in SDSS Quasar Catalog | No | Yes |
+| Service | Description | Requires time | Can return URL | References |
+| ------- | ----------- | ------------- | -------------- | ---------- |
+| [check_gaia](#check_gaia-look-for-matches-in-gaia-currently-dr3) | check for matches in [Gaia](https://gaia.ari.uni-heidelberg.de/singlesource.html) | Yes | Yes | [Gaia Collaboration et al. 2023, A&A, 674, 1](https://ui.adsabs.harvard.edu/abs/2023A%26A...674A...1G/abstract) |
+| [check_simbad](#check_simbad-look-for-matches-in-simbad) | check for matches in [Simbad](https://simbad.u-strasbg.fr/simbad/sim-id) | Yes | Yes | [Wenger et al. 2000, A&AS, 143, 9](https://ui.adsabs.harvard.edu/abs/2000A%26AS..143....9W/abstract) |    
+| [check_pulsarscraper](#check_pulsarscraper-search-for-pulsars-in-atnf-or-unpublished-catalogs) | check for matches in [pulsar survey scraper](https://pulsar.cgca-hub.org) | No | No | [Kaplan 2022, ASCL, 2210.001](https://ui.adsabs.harvard.edu/abs/2022ascl.soft10001K/abstract) |    
+| [check_atnf](#check_atnf-search-for-pulsars-in-atnf-catalog) | check for matches in [ATNF pulsar catalog](https://www.atnf.csiro.au/research/pulsar/psrcat/) | Yes | No | [Pitkin 2018, JOSS, 3, 538](https://ui.adsabs.harvard.edu/abs/2018JOSS....3..538P/abstract) [Manchester et al. 2005, AJ, 129, 1993](https://ui.adsabs.harvard.edu/abs/2005AJ....129.1993M/abstract) |      
+| [check_planets](#check_planets-look-for-solar-system-planets) | check for solar system planets using astropy | Yes | No | |
+| [check_tgss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [TGSS ADR1](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/598/A78) | No | Yes | [Intema et al. 2017, A&A, 598, 78](https://ui.adsabs.harvard.edu/abs/2017A%26A...598A..78I/abstract) |    
+| [check_nvss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [NVSS](https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/65) | No | Yes | [Condon et al. 1998, AJ, 115, 1693](https://ui.adsabs.harvard.edu/abs/1998AJ....115.1693C) |   
+| [check_first](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [FIRST](https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/92) | No | Yes | [Helfand, White, and Becker 2015, ApJ, 801, 26](https://ui.adsabs.harvard.edu/abs/2015ApJ...801...26H/abstract)     |
+| [check_milliquas](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [Million Quasar catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/280) | No | Yes | [Flesch 2015, PASA, 32, 10](https://ui.adsabs.harvard.edu/abs/2015PASA...32...10F/abstract)     |
+| [check_wiseagn](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [WISE AGN catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/ApJS/234/23) (75% confidence version) | No | Yes | [Assef et al. 2018, ApJS, 234, 23](https://ui.adsabs.harvard.edu/abs/2018ApJS..234...23A/abstract) |
+| [check_lqac](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [Large Quasar Astrometric Catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/624/A145) | No | Yes | [Souchay et al. 2019, A&A, 624, 145](https://ui.adsabs.harvard.edu/abs/2019A%26A...624A.145S/abstract) |
+| [check_sdssqso](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in [SDSS Quasar Catalog](https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/289) | No | Yes | [Lyke et al. 2020, ApJS, 250, 8](https://ui.adsabs.harvard.edu/abs/2020ApJS..250....8L)     |
 | [check_vla](#check_vla-check-for-vla-or-evla-observations) | check for VLA/EVLA observations | Optional | No |
 | [check_casda](#check_casda-check-for-askap-observations) | check for ASKAP observations | Optional | No |
 | [check_all](#check_all-check-against-all-available-services) | query all available services | Yes | Yes |
