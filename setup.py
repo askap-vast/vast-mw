@@ -22,6 +22,8 @@ setup(
             "check_nvss=vast_mw.scripts.check_nvss:main",
             "check_milliquas=vast_mw.scripts.check_milliquas:main",
             "check_wiseagn=vast_mw.scripts.check_wiseagn:main",
+            "check_lqac=vast_mw.scripts.check_lqac:main",
+            "check_sdssqso=vast_mw.scripts.check_sdssqso:main",
             "check_all=vast_mw.scripts.check_all:main",
         ]
     },

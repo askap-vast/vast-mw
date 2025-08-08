@@ -42,6 +42,8 @@ services = {
     "NVSS": ["check_nvss", "vizier_url"],
     "Million Quasar": ["check_milliquas", "vizier_url"],
     "WISEAGN": ["check_wiseagn", "vizier_url"],
+    "Large Quasar Astrometric Catalog": ["check_lqac", "vizier_url"],
+    "SDSS Quasar": ["check_sdssqso", "vizier_url"],
 }
 
 
@@ -164,6 +166,9 @@ def check_gaia(
     source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against Gaia, correcting for proper motion
+    https://www.cosmos.esa.int/web/gaia/dr3-papers
+    https://ui.adsabs.harvard.edu/abs/2023A%26A...674A...1G/abstract
+    Gaia Collaboration et al. 2023, A&A, 674, 1
 
     Parameters
     ----------
@@ -211,6 +216,10 @@ def check_pulsarscraper(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against the Pulsar survey scraper
+    https://pulsar.cgca-hub.org
+    https://ui.adsabs.harvard.edu/abs/2022ascl.soft10001K/abstract
+    Kaplan 2022, ASCL, 2210.001
+
 
     Parameters
     ----------
@@ -287,6 +296,8 @@ def check_simbad(
     source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against Simbad, correcting for proper motion
+    https://ui.adsabs.harvard.edu/abs/2000A%26AS..143....9W/abstract
+    Wenger et al. 2000, A&AS, 143, 9
 
     Parameters
     ----------
@@ -341,6 +352,12 @@ def check_atnf(
     source: SkyCoord, t: Time = None, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against ATNF pulsar catalog, correcting for proper motion
+    https://www.atnf.csiro.au/research/pulsar/psrcat/
+    https://psrqpy.readthedocs.io/en/latest/
+    https://ui.adsabs.harvard.edu/abs/2018JOSS....3..538P/abstract
+    https://ui.adsabs.harvard.edu/abs/2005AJ....129.1993M/abstract
+    Pitkin 2018, JOSS, 3, 538
+    Manchester et al. 2005, AJ, 129, 1993
 
     Parameters
     ----------
@@ -468,7 +485,7 @@ def check_vla(
     allcolumns: bool = False,
     group: bool = False,
 ) -> Table:
-    """Check a source against ATNF pulsar catalog, correcting for proper motion
+    """Check a source against VLA archive
 
     Parameters
     ----------
@@ -626,6 +643,9 @@ def check_tgss(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against the TGSS ADR1
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/598/A78
+    https://ui.adsabs.harvard.edu/abs/2017A%26A...598A..78I/abstract
+    Intema et al. 2017, A&A, 598, 78
 
     Parameters
     ----------
@@ -652,6 +672,9 @@ def check_first(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against FIRST
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/92
+    https://ui.adsabs.harvard.edu/abs/2015ApJ...801...26H/abstract
+    Helfand, White, and Becker 2015, ApJ, 801, 26
 
     Parameters
     ----------
@@ -678,6 +701,9 @@ def check_nvss(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against NVSS
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/VIII/65
+    https://ui.adsabs.harvard.edu/abs/1998AJ....115.1693C
+    Condon et al. 1998, AJ, 115, 1693
 
     Parameters
     ----------
@@ -704,6 +730,9 @@ def check_milliquas(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
     """Check a source against Million Quasar catalog
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/280
+    https://ui.adsabs.harvard.edu/abs/2015PASA...32...10F/abstract
+    Flesch 2015, PASA, 32, 10
 
     Parameters
     ----------
@@ -729,7 +758,10 @@ def check_milliquas(
 def check_wiseagn(
     source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
 ) -> Dict[str, u.Quantity]:
-    """Check a source against WISE AGN catalog
+    """Check a source against WISE AGN catalog (75% confidence)
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/J/ApJS/234/23
+    https://ui.adsabs.harvard.edu/abs/2018ApJS..234...23A/abstract
+    Assef et al. 2018, ApJS, 234, 23
 
     Parameters
     ----------
@@ -748,6 +780,66 @@ def check_wiseagn(
     out = {}
     for r in result:
         names = r["WISEA"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_lqac(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against Large Quasar Astrometric catalog
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/J/A+A/624/A145
+    https://ui.adsabs.harvard.edu/abs/2019A%26A...624A.145S/abstract
+    Souchay et al. 2019, A&A, 624, 145
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of LQAC identifier and angular separation
+    """
+    result = Vizier().query_region(
+        source, radius=radius, catalog=["J/A+A/624/A145/lqac5"]
+    )
+    out = {}
+    for r in result:
+        names = r["LQAC"]
+        matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
+        for i in range(len(r)):
+            out[names[i]] = matchpos[i].separation(source)
+    return out
+
+
+def check_sdssqso(
+    source: SkyCoord, radius: u.Quantity = 15 * u.arcsec
+) -> Dict[str, u.Quantity]:
+    """Check a source against SDSS QSO catalog from DR16
+    https://cdsarc.cds.unistra.fr/viz-bin/cat/VII/289
+    https://ui.adsabs.harvard.edu/abs/2020ApJS..250....8L
+    Lyke et al. 2020, ApJS, 250, 8
+
+    Parameters
+    ----------
+    source : SkyCoord
+    radius : u.Quantity, optional
+        Search radius for cone search
+
+    Returns
+    -------
+    dict
+        Pairs of SDSS QSO identifier and angular separation
+    """
+    result = Vizier().query_region(source, radius=radius, catalog=["VII/289/dr16q"])
+    out = {}
+    for r in result:
+        names = r["SDSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
             out[names[i]] = matchpos[i].separation(source)
