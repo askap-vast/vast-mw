@@ -7,14 +7,58 @@ import argparse
 from loguru import logger as log
 import sys
 import warnings
+import re
+import textwrap
 
 from vast_mw import vast_mw
 
 
+class DescriptionWrappedNewlineFormatter(argparse.ArgumentDefaultsHelpFormatter):
+    """An argparse formatter that:
+    * preserves newlines (like argparse.RawDescriptionHelpFormatter),
+    * removes leading indent (great for multiline strings),
+    * and applies reasonable text wrapping.
+
+    Source: https://stackoverflow.com/a/64102901/79125
+    """
+
+    def _fill_text(self, text, width, indent):
+        # Strip the indent from the original python definition that plagues most of us.
+        text = textwrap.dedent(text)
+        text = textwrap.indent(text, indent)  # Apply any requested indent.
+        text = text.splitlines()  # Make a list of lines
+        text = [textwrap.fill(line, width) for line in text]  # Wrap each line
+        text = "\n".join(text)  # Join the lines again
+        return text
+
+
+class WrappedNewlineFormatter(DescriptionWrappedNewlineFormatter):
+    """An argparse formatter that:
+    * preserves newlines (like argparse.RawTextHelpFormatter),
+    * removes leading indent and applies reasonable text wrapping (like DescriptionWrappedNewlineFormatter),
+    * applies to all help text (description, arguments, epilogue).
+    """
+
+    def _split_lines(self, text, width):
+        # Allow multiline strings to have common leading indentation.
+        text = textwrap.dedent(text)
+        text = text.splitlines()
+        lines = []
+        for line in text:
+            wrapped_lines = textwrap.fill(line, width).splitlines()
+            lines.extend(subline for subline in wrapped_lines)
+            if line:
+                lines.append("")  # Preserve line breaks.
+        return lines
+
+
 def main():
+    services_string = "\n\t".join(
+        [f"{x}:\t{vast_mw.services[x][0]}" for x in vast_mw.services]
+    )
     parser = argparse.ArgumentParser(
-        description="Query all services for a number of positions",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        description=f"Query all services for a number of positions.  Available services:\n\t{services_string}",
+        formatter_class=DescriptionWrappedNewlineFormatter,
     )
     parser.add_argument(
         "-c",
