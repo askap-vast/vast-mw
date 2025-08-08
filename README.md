@@ -30,6 +30,8 @@ if you don't want to check out the repository.
 | [check_tgss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in TGSS ADR1 | No | Yes |
 | [check_nvss](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in NVSS | No | Yes |
 | [check_first](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in FIRST | No | Yes |
+| [check_milliquas](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in Million Quasar catalog | No | Yes |
+| [check_wiseagn](#check_tgss-check-for-matches-in-tgssadr1) | check for matches in WISE AGN catalog (75% confidence version) | No | Yes |
 | [check_vla](#check_vla-check-for-vla-or-evla-observations) | check for VLA/EVLA observations | Optional | No |
 | [check_casda](#check_casda-check-for-askap-observations) | check for ASKAP observations | Optional | No |
 | [check_all](#check_all-check-against-all-available-services) | query all available services | Yes | Yes |
@@ -188,7 +190,7 @@ The returned object is a dictionary containing pairs of planet name, angular sep
 ---
 
 ## `check_tgss`: check for matches in TGSSADR1
-### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST):
+### Search for matches in TGSSADR1 catalog (same interface for NVSS, FIRST, Milliquas, WISE AGN):
 ```
 check_tgss -c "10:00:00, +00:00:00" --radius 1200 -vv --url                                                          
 INFO    : For source at '10h00m00.00s, +00d00m00.0s' = '150.000d, +0.000d', found 5 TGSSADR1 matches within 1200.0 arcsec
