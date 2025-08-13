@@ -253,7 +253,7 @@ def check_pulsarscraper(
             continue
         out[f"{k}[{response.json()[k]['survey']['value']}]"] = (
             response.json()[k]["distance"]["value"] * u.deg
-        )
+        ).to(u.arcsec)
     return out
 
 
@@ -635,7 +635,7 @@ def check_planets(
         for planet_name in solar_system_ephemeris.bodies:
             planet = get_body(planet_name, t, loc)
             if planet.separation(source) < radius:
-                separations[planet_name] = planet.separation(source)
+                separations[planet_name] = planet.separation(source).to(u.arcsec)
 
     return separations
 
@@ -665,7 +665,7 @@ def check_tgss(
         names = r["TGSSADR"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"])
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -694,7 +694,7 @@ def check_first(
         names = r["FIRST"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[f"{names[i]}"] = matchpos[i].separation(source)
+            out[f"{names[i]}"] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -723,7 +723,7 @@ def check_nvss(
         names = r["NVSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -752,7 +752,7 @@ def check_milliquas(
         names = r["Name"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -783,7 +783,7 @@ def check_wiseagn(
         names = r["WISEA"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -814,7 +814,7 @@ def check_lqac(
         names = r["LQAC"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -843,7 +843,7 @@ def check_sdssqso(
         names = r["SDSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -872,5 +872,5 @@ def check_vlass(
         names = r["CompName"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source)
+            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
     return out
