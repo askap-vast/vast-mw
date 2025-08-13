@@ -110,6 +110,7 @@ def main():
         sys.exit(1)
     for name, source in zip(names, sources):
         for service in vast_mw.services:
+            print(f"Checking {service}")
             function_to_call = getattr(vast_mw, vast_mw.services[service][0])
             results = function_to_call(source, radius=args.radius * u.arcsec)
             level = log.info if len(results) > 0 else log.warning
