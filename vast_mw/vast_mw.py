@@ -550,6 +550,7 @@ def check_vla(
             [(x[0], x[1]) for x in output["obs_publisher_did", "target_name"]]
         )
         freq_max = np.zeros(len(unique_obs))
+        freq_min = np.zeros(len(unique_obs))
         t_min = np.zeros(len(unique_obs))
         t_max = np.zeros(len(unique_obs))
         t_exptime = np.zeros(len(unique_obs))
@@ -565,6 +566,7 @@ def check_vla(
                 & (output["target_name"] == obs[1])
             )[0]
             freq_max[i] = output[match]["freq_max"].max()
+            freq_min[i] = output[match]["freq_min"].min()
             t_min[i] = output[match]["t_min"].min()
             t_max[i] = output[match]["t_max"].max()
             t_exptime[i] = output[match]["t_exptime"].sum()
@@ -578,6 +580,7 @@ def check_vla(
                 Column(t_min, name="t_min"),
                 Column(t_max, name="t_max"),
                 Column(t_exptime, name="t_exptime"),
+                Column(freq_min, name="freq_min"),
                 Column(freq_max, name="freq_max"),
                 Column(configuration, name="configuration"),
             ]
@@ -594,6 +597,7 @@ def check_vla(
             "t_min",
             "t_max",
             "t_exptime",
+            "freq_min",
             "freq_max",
             "configuration",
         ]
