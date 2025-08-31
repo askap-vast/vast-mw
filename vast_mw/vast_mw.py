@@ -547,7 +547,10 @@ def check_vla(
     output.sort("t_min")
     if group:
         unique_obs = set(
-            [(x[0], x[1]) for x in output["obs_publisher_did", "target_name"]]
+            [
+                (x[0], x[1], x[2])
+                for x in output["obs_publisher_did", "target_name", "freq_min"]
+            ]
         )
         freq_max = np.zeros(len(unique_obs))
         freq_min = np.zeros(len(unique_obs))
@@ -558,13 +561,16 @@ def check_vla(
         configuration = []
         obs_publisher_did = []
         target_name = []
+        project_code = []
         for i, obs in enumerate(unique_obs):
             obs_publisher_did.append(obs[0])
             target_name.append(obs[1])
             match = np.where(
                 (output["obs_publisher_did"] == obs[0])
                 & (output["target_name"] == obs[1])
+                & (output["freq_min"] == obs[2])
             )[0]
+            project_code.append(list(set(output[match]["project_code"]))[0])
             freq_max[i] = output[match]["freq_max"].max()
             freq_min[i] = output[match]["freq_min"].min()
             t_min[i] = output[match]["t_min"].min()
@@ -574,6 +580,7 @@ def check_vla(
             configuration.append(set(output[match]["configuration"]))
         grouped_output = Table(
             [
+                Column(project_code, name="project_code"),
                 Column(obs_publisher_did, name="obs_publisher_did"),
                 Column(target_name, name="target_name"),
                 Column(separation, name="Separation"),
@@ -591,6 +598,7 @@ def check_vla(
         return output
     else:
         return output[
+            "project_code",
             "obs_publisher_did",
             "target_name",
             "Separation",
