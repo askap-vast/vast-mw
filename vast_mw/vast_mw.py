@@ -195,9 +195,7 @@ def check_gaia(
     r = q.get_results()
     separations = {}
     if len(r) > 0:
-        designation = (
-            "DESIGNATION" if "DESIGNATION" in r["i"].colnames else "designation"
-        )
+        designation = "DESIGNATION" if "DESIGNATION" in r.colnames else "designation"
     for i in range(len(r)):
         gaia_source = SkyCoord(
             r[i]["ra"] * u.deg,
