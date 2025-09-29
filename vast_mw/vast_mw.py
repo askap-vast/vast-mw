@@ -194,6 +194,10 @@ def check_gaia(
     q = Gaia.cone_search(coordinate=source, radius=radius)
     r = q.get_results()
     separations = {}
+    if len(r) > 0:
+        designation = (
+            "DESIGNATION" if "DESIGNATION" in r["i"].colnames else "designation"
+        )
     for i in range(len(r)):
         gaia_source = SkyCoord(
             r[i]["ra"] * u.deg,
@@ -207,7 +211,7 @@ def check_gaia(
             ),
             obstime=Time(r[0]["ref_epoch"], format="decimalyear"),
         )
-        separations[r[i]["DESIGNATION"]] = (
+        separations[r[i][designation]] = (
             gaia_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
         )
     return separations
