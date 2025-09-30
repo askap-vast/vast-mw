@@ -332,17 +332,20 @@ def check_simbad(
         r = cSimbad.query_region(source, radius=radius)
     if r is None:
         return {}
+    ra_col, dec_col, pmra_col, pmdec_col = "RA", "DEC", "PMRA", "PMDEC"
+    if "RA" not in r.colnames:
+        ra_col, dec_col, pmra_col, pmdec_col = "ra", "dec", "pmra", "pmdec"
     separations = {}
     for i in range(len(r)):
         # simbad gives positions in epoch 2000
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
             simbad_source = SkyCoord(
-                r[i]["RA"],
-                r[i]["DEC"],
+                r[i][ra_col],
+                r[i][dec_col],
                 unit=("hour", "deg"),
-                pm_ra_cosdec=r[i]["PMRA"] * u.mas / u.yr,
-                pm_dec=r[i]["PMDEC"] * u.mas / u.yr,
+                pm_ra_cosdec=r[i][pmra_col] * u.mas / u.yr,
+                pm_dec=r[i][pmdec_col] * u.mas / u.yr,
                 obstime=Time(2000, format="decimalyear"),
             )
             separations[r[i]["MAIN_ID"]] = (
