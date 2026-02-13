@@ -61,6 +61,12 @@ def main():
         "--radius", default=15, type=float, help="Search radius (arcsec)"
     )
     parser.add_argument(
+        "--reg", default=False, action="store_true", help="Create ds9 region file"
+    )
+    parser.add_argument(
+        "--reg-radius", default=15, type=float, help="Radius for ds9 region file (arcsec)"
+    )
+    parser.add_argument(
         "--vastonly",
         default=False,
         action="store_true",
@@ -112,6 +118,7 @@ def main():
             f"Cannot parse input coordinates '{ra}, {dec}' with input units '{ra_units}, {dec_units}'"
         )
         sys.exit(1)
+    sources, names = vast_mw._parse_input(args)
     results = vast_mw.check_casda(
         source,
         radius=args.radius * u.arcsec,
@@ -125,3 +132,9 @@ def main():
         f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} CASDA matches within {args.radius} arcsec"
     )
     print(results)
+    if args.reg:
+        if len(results) > 0:
+            vast_mw.create_regfile(
+                results, radius=args.reg_radius, filename=vast_mw.format_name(source).replace(" ", "_") + "_check_casda"
+            )
+            log.info("Wrote ds9 region file " + f"{vast_mw.format_name(source).replace(' ', '_')}_check_casda.reg")

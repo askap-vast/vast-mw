@@ -44,8 +44,58 @@ services = {
     "WISEAGN": ["check_wiseagn", "vizier_url"],
     "Large Quasar Astrometric Catalog": ["check_lqac", "vizier_url"],
     "SDSS Quasar": ["check_sdssqso", "vizier_url"],
-    "VLASS": ["check_vlass", "vizier_url"],
+    "VLASS": ["check_vlass", "vizier_url"]
 }
+
+def table_to_dict(table: Table) -> Dict:
+    '''Convert an astropy Table to a dictionary of lists
+    Parameters
+    ----------
+    table : Table
+        Astropy Table to convert
+    Returns
+    -------
+    dict
+        Dictionary of lists
+    '''
+    out = {}
+    for row in table:
+        #Select first column as key
+        key_column = table.colnames[0]
+        key = row[key_column]
+        # Create a dict of all columns except the key column and replace obs_coords with coords
+        row_dict = {("coords" if col == "obs_coords" else col): row[col] for col in table.colnames if col != key_column}
+        out[key] = row_dict
+    return out
+
+#Function to parse output and create a ds9 region file
+def create_regfile(results, radius,filename):
+    '''Function to create a ds9 region file from the results of a catalog check. 
+    Parameters
+    ----------
+    results : dict
+        Dictionary of results from a catalog check function
+    radius : int
+        Radius of circle to draw in arcsceconds
+        filename : Name of the output file (without .reg extension)
+    Returns
+    -------
+    None
+    Writes a ds9 region file named after the catalog check function
+    '''
+    if isinstance(results, Table):
+        temp_results = table_to_dict(results)
+    results = temp_results if isinstance(results, Table) else results
+    keys = list(results.keys())
+    #Open a file to write the ds9 region data
+    with open(filename + ".reg", "w") as f:
+        f.write("# Region file format: DS9 version 4.1\n")
+        f.write("global color=green dashlist=8 3 width=1 font=\"helvetica 10 normal roman\" select=1 highlite=1 dash=0 fixed=0 edit=1 move=1 delete=1 include=1 source=1\n")
+        f.write("fk5\n")
+        for k in keys:
+            c = results[k]['coords']
+            f.write(f"circle({c.ra.to(u.deg).value},{c.dec.to(u.deg).value},{radius}\") # text=\"{k}\"\n")
+    f.close()
 
 
 def format_radec_decimal(coord: SkyCoord) -> str:
@@ -193,7 +243,7 @@ def check_gaia(
         t = source.obstime
     q = Gaia.cone_search(coordinate=source, radius=radius)
     r = q.get_results()
-    separations = {}
+    results = {}
     if len(r) > 0:
         designation = "DESIGNATION" if "DESIGNATION" in r.colnames else "designation"
     for i in range(len(r)):
@@ -209,10 +259,10 @@ def check_gaia(
             ),
             obstime=Time(r[0]["ref_epoch"], format="decimalyear"),
         )
-        separations[r[i][designation]] = (
+        results[r[i][designation]] = {'coords': gaia_source, 'separation':
             gaia_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
-        )
-    return separations
+        }
+    return results
 
 
 def check_pulsarscraper(
@@ -250,12 +300,16 @@ def check_pulsarscraper(
         )
         return {}
     out = {}
-    for k in response.json():
+    data = response.json()
+    for k in data:
         if k.startswith("search") or k.startswith("nmatches"):
             continue
-        out[f"{k}[{response.json()[k]['survey']['value']}]"] = (
-            response.json()[k]["distance"]["value"] * u.deg
-        ).to(u.arcsec)
+        entry = data[k]
+        ra = entry["ra"]["value"] * u.deg
+        dec = entry["dec"]["value"] * u.deg
+        pulsar_coord = SkyCoord(ra, dec, frame="icrs")
+        sep = pulsar_coord.separation(source).to(u.arcsec)
+        out[f"{k}[{data[k]['survey']['value']}]"] = {'coords': pulsar_coord, 'separation': sep}
     return out
 
 
@@ -335,7 +389,11 @@ def check_simbad(
     ra_col, dec_col, pmra_col, pmdec_col = "RA", "DEC", "PMRA", "PMDEC"
     if "RA" not in r.colnames:
         ra_col, dec_col, pmra_col, pmdec_col = "ra", "dec", "pmra", "pmdec"
-    separations = {}
+    if "MAIN_ID" not in r.colnames:
+        ind = "main_id"
+    else:
+        ind = "MAIN_ID"
+    results = {}
     for i in range(len(r)):
         # simbad gives positions in epoch 2000
         with warnings.catch_warnings():
@@ -348,10 +406,10 @@ def check_simbad(
                 pm_dec=r[i][pmdec_col] * u.mas / u.yr,
                 obstime=Time(2000, format="decimalyear"),
             )
-            separations[r[i]["MAIN_ID"]] = (
+            results[r[i][ind]] = {'coords': simbad_source, 'separation':
                 simbad_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
-            )
-    return separations
+            }
+    return results
 
 
 def check_atnf(
@@ -402,7 +460,7 @@ def check_atnf(
     )
     if r is None or len(r) == 0:
         return {}
-    separations = {}
+    results = {}
     for i in range(len(r)):
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore")
@@ -413,10 +471,10 @@ def check_atnf(
                 pm_dec=r.table[i]["PMDEC"] * u.mas / u.yr,
                 obstime=Time(r.table[i]["POSEPOCH"], format="mjd"),
             )
-            separations[r.table[i]["JNAME"]] = (
+            results[r.table[i]["JNAME"]] = {'coords': atnf_source, 'separation':
                 atnf_source.apply_space_motion(t).separation(source).arcsec * u.arcsec
-            )
-    return separations
+            }
+    return results
 
 
 def check_casda(
@@ -470,6 +528,14 @@ def check_casda(
     filtered_result.add_column(
         Column(Time(filtered_result["t_min"], format="mjd").iso, name="start")
     )
+    ras = filtered_result["s_ra"]
+    decs = filtered_result["s_dec"]
+    obs_coords = SkyCoord(ras, decs, unit="deg")
+
+    separations = obs_coords.separation(source).to(u.arcsec)
+
+    filtered_result.add_column(Column(obs_coords, name="obs_coords"))
+    filtered_result.add_column(Column(separations, name="separation"))
     filtered_result.sort("t_min")
     if (tstart is not None) and (len(filtered_result) > 0):
         filtered_result = filtered_result[filtered_result["start"] >= tstart]
@@ -479,7 +545,7 @@ def check_casda(
         return filtered_result
     else:
         return filtered_result[
-            "obs_id", "t_min", "start", "t_exptime", "Frequency", "obs_collection"
+            "obs_id", "t_min", "start", "t_exptime", "Frequency", "obs_collection", "obs_coords", "separation"
         ]
 
 
@@ -538,6 +604,7 @@ def check_vla(
     hpbw = 1.2 * (wl / (25 * u.m)).to(u.arcmin, equivalencies=u.dimensionless_angles())
     obs_coords = SkyCoord(ra=output["s_ra"] * u.degree, dec=output["s_dec"] * u.degree)
     output.add_column(
+        Column(obs_coords, name="coords"),
         Column(source.separation(obs_coords).to(u.arcmin), name="Separation")
     )
     good = np.ones(len(output), dtype=bool)
@@ -585,6 +652,7 @@ def check_vla(
             configuration.append(set(output[match]["configuration"]))
         grouped_output = Table(
             [
+                Column(obs_coords, name="coords"),
                 Column(project_code, name="project_code"),
                 Column(obs_publisher_did, name="obs_publisher_did"),
                 Column(target_name, name="target_name"),
@@ -604,6 +672,7 @@ def check_vla(
     else:
         return output[
             "project_code",
+            "coords",
             "obs_publisher_did",
             "target_name",
             "Separation",
@@ -647,14 +716,14 @@ def check_planets(
             return {}
         t = source.obstime
     loc = EarthLocation.of_site(obs)
-    separations = {}
+    results = {}
     with solar_system_ephemeris.set("builtin"):
         for planet_name in solar_system_ephemeris.bodies:
             planet = get_body(planet_name, t, loc)
             if planet.separation(source) < radius:
-                separations[planet_name] = planet.separation(source).to(u.arcsec)
+                results[planet_name] = {'coords': planet, 'separation': planet.separation(source).to(u.arcsec)}
 
-    return separations
+    return results
 
 
 def check_tgss(
@@ -682,7 +751,7 @@ def check_tgss(
         names = r["TGSSADR"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"])
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -711,7 +780,8 @@ def check_first(
         names = r["FIRST"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[f"{names[i]}"] = matchpos[i].separation(source).to(u.arcsec)
+            out[f"{names[i]}"] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
+            # out[f"{names[i]}"] = matchpos[i].separation(source).to(u.arcsec)
     return out
 
 
@@ -740,7 +810,7 @@ def check_nvss(
         names = r["NVSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -769,7 +839,7 @@ def check_milliquas(
         names = r["Name"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -800,7 +870,7 @@ def check_wiseagn(
         names = r["WISEA"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -831,7 +901,7 @@ def check_lqac(
         names = r["LQAC"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -860,7 +930,7 @@ def check_sdssqso(
         names = r["SDSS"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
 
 
@@ -889,5 +959,6 @@ def check_vlass(
         names = r["CompName"]
         matchpos = SkyCoord(r["RAJ2000"], r["DEJ2000"], unit=("hour", "deg"))
         for i in range(len(r)):
-            out[names[i]] = matchpos[i].separation(source).to(u.arcsec)
+            out[names[i]] = {'coords': matchpos[i], 'separation': matchpos[i].separation(source).to(u.arcsec)}
     return out
+

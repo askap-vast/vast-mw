@@ -51,6 +51,12 @@ def main():
         "--radius", default=60, type=float, help="Search radius (arcsec)"
     )
     parser.add_argument(
+        "--reg", default=False, action="store_true", help="Create ds9 region file"
+    )
+    parser.add_argument(
+        "--reg-radius", default=15, type=float, help="Radius for ds9 region file (arcsec)"
+    )
+    parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
     )
 
@@ -78,9 +84,17 @@ def main():
         level(
             f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} planets within {args.radius} arcsec"
         )
-        for k, v in sorted(results.items(), key=lambda x: x[1]):
+        for k, v in sorted(results.items(), key=lambda item: item[1]['separation']):
             s = vast_mw.format_name(source)
+            src = s.replace(" ", "_")
             if name is not None:
                 s += f"[{name}]"
-            out = f"{s}\t{k}: {v:4.2f}"
+            out = f"{s}\t{k}: {v['separation']:4.2f}"
             print(out)
+
+        if args.reg:
+            if len(results) > 0:
+                vast_mw.create_regfile(
+                    results, radius=args.reg_radius, filename=src + "_check_planets"
+                )
+                log.info("Wrote ds9 region file " + f"{src}_check_planets.reg")

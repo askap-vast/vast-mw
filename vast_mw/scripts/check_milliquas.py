@@ -45,6 +45,12 @@ def main():
     parser.add_argument(
         "--radius", default=15, type=float, help="Search radius (arcsec)"
     )
+    parser.add_argument(
+        "--reg", default=False, action="store_true", help="Create ds9 region file"
+    )
+    parser.add_argument(
+        "--reg-radius", default=15, type=float, help="Radius for ds9 region file (arcsec)"
+    )
     parser.add_argument("-u", "--url", action="store_true", help="Return URL")
     parser.add_argument(
         "-v", "--verbosity", default=0, action="count", help="Increase output verbosity"
@@ -67,16 +73,24 @@ def main():
     if sources is None or len(sources) == 0:
         sys.exit(1)
     for name, source in zip(names, sources):
+        print(name)
         results = vast_mw.check_milliquas(source, radius=args.radius * u.arcsec)
         level = log.info if len(results) > 0 else log.warning
         level(
             f"For source at '{vast_mw.format_radec(source)}' = '{vast_mw.format_radec_decimal(source)}', found {len(results)} Milliquas matches within {args.radius} arcsec"
         )
-        for k, v in sorted(results.items(), key=lambda x: x[1]):
+        for k, v in sorted(results.items(), key=lambda item: item[1]['separation']):
             s = vast_mw.format_name(source)
+            src = s.replace(" ", "_")
             if name is not None:
                 s += f"[{name}]"
-            out = f"{s}\t{k}: {v:4.1f}"
+            out = f"{s}\t{k}: {v['separation']:4.1f}"
             if args.url:
                 out += f"\t{vast_mw.vizier_url(catalog='VII/294/catalog',idname='Name',sourcename=k)}"
             print(out)
+        if args.reg:
+            if len(results) > 0:
+                vast_mw.create_regfile(
+                    results, radius=args.reg_radius, filename=src + "_check_milliquas"
+                )
+                log.info("Wrote ds9 region file " + f"{src}_check_milliquas.reg")

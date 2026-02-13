@@ -1,0 +1,33 @@
+Checking Gaia
+INFO    : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 2 Gaia matches within 45.0 arcsec
+VAST J1105.3+4332	Gaia DR3 778947608243864320:  6.3 arcsec
+VAST J1105.3+4332	Gaia DR3 778947814402602752: 37.5 arcsec
+INFO    : Wrote ds9 region file VAST_J1105.3+4332_check_gaia.reg
+Checking Simbad
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 Simbad matches within 45.0 arcsec
+Checking Pulsar Survey Scraper
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 Pulsar Survey Scraper matches within 45.0 arcsec
+Checking ATNF Pulsar Catalog
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 ATNF Pulsar Catalog matches within 45.0 arcsec
+Checking Planets
+WARNING: NonRotationTransformationWarning: transforming other coordinates from <ICRS Frame> to <GCRS Frame (obstime=2023-12-21 21:07:40.000, obsgeoloc=(-5472669.58475607, 1623335.17937899, -2836444.93322879) m, obsgeovel=(-118.38189911, -398.59307003, 0.2872842) m / s)>. Angular separation can depend on the direction of the transformation. [astropy.coordinates.baseframe]
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 Planets matches within 45.0 arcsec
+Checking TGSS
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 TGSS matches within 45.0 arcsec
+Checking FIRST
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 FIRST matches within 45.0 arcsec
+Checking NVSS
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 NVSS matches within 45.0 arcsec
+Checking Million Quasar
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 Million Quasar matches within 45.0 arcsec
+Checking WISEAGN
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 WISEAGN matches within 45.0 arcsec
+Checking Large Quasar Astrometric Catalog
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 Large Quasar Astrometric Catalog matches within 45.0 arcsec
+Checking SDSS Quasar
+WARNING : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 0 SDSS Quasar matches within 45.0 arcsec
+Checking VLASS
+INFO    : For source at '11h05m21.53s, +43d31m35.0s' = '166.340d, +43.526d', found 2 VLASS matches within 45.0 arcsec
+VAST J1105.3+4332	VLASS1QLCIR J110523.23+433137.2: 18.7 arcsec
+VAST J1105.3+4332	VLASS1QLCIR J110523.24+433137.1: 18.8 arcsec
+INFO    : Wrote ds9 region file VAST_J1105.3+4332_check_vlass.reg
